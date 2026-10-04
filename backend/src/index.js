@@ -6,14 +6,26 @@ import dotenv from 'dotenv';
 import sessionRoutes from './routes/sessionRoutes.js';
 import streamRoutes from './routes/streamRoutes.js';
 import webhookRoutes from './github/webhookHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
-// Load root .env or fallback to local directory
-const rootEnv = path.resolve('..', '.env');
-const localEnv = path.resolve('.env');
-if (fs.existsSync(rootEnv)) {
-  dotenv.config({ path: rootEnv });
-} else {
-  dotenv.config({ path: localEnv });
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..', '..');
+
+const candidateEnvFiles = [
+  path.join(projectRoot, '.env'),
+  path.resolve('.env'),
+  path.resolve('..', '.env'),
+  path.resolve('backend', '.env')
+];
+
+for (const envPath of candidateEnvFiles) {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    break;
+  }
 }
 
 const app = express();
@@ -33,6 +45,7 @@ app.use('/demo-assets', express.static(path.resolve('..', 'examples', 'demo-bug-
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/sessions', streamRoutes);
 app.use('/api/github', webhookRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

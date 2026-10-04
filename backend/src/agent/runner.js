@@ -146,12 +146,61 @@ export async function runTriageSession(sessionId, options = {}) {
     }
 
     const finalText = currentResponse.response.text();
-    let report;
-    try {
-      // Clean possible code fences from json
-      const cleanJson = finalText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      report = JSON.parse(cleanJson);
-    } catch {
+    
+    // Safely extract and parse structured JSON report from LLM response
+    function parseStructuredReport(text) {
+      if (!text) return null;
+
+      // 1. Try extracting from markdown code block ```json ... ```
+      const jsonBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/gi;
+      let blockMatch;
+      while ((blockMatch = jsonBlockRegex.exec(text)) !== null) {
+        try {
+          const parsed = JSON.parse(blockMatch[1].trim());
+          if (parsed && (parsed.rootCause || parsed.suggestedPatch || parsed.evidence)) {
+            return parsed;
+          }
+        } catch {
+          // Continue searching
+        }
+      }
+
+      // 2. Find outermost balanced JSON object { ... }
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        try {
+          const jsonSubstring = text.substring(firstBrace, lastBrace + 1).trim();
+          const parsed = JSON.parse(jsonSubstring);
+          if (parsed && (parsed.rootCause || parsed.suggestedPatch || parsed.evidence)) {
+            return parsed;
+          }
+        } catch {
+          // Attempt loose sanitize of trailing commas
+          try {
+            const sanitized = text
+              .substring(firstBrace, lastBrace + 1)
+              .replace(/,\s*([}\]])/g, '$1')
+              .trim();
+            const parsed = JSON.parse(sanitized);
+            if (parsed) return parsed;
+          } catch {
+            // Fall through
+          }
+        }
+      }
+
+      // 3. Fallback direct parse
+      try {
+        return JSON.parse(text.trim());
+      } catch {
+        return null;
+      }
+    }
+
+    let report = parseStructuredReport(finalText);
+
+    if (!report || typeof report !== 'object') {
       report = {
         observedProblem: issueText,
         rootCause: finalText,

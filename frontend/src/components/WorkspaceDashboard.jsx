@@ -20,6 +20,15 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
   const [previewUrl, setPreviewUrl] = useState('/demo-assets/error-screenshot.png');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [authStatus, setAuthStatus] = useState({
+    oauthConfigured: false,
+    botConfigured: false,
+    webhookSecretConfigured: false,
+    model: 'gemma-4-31b-it'
+  });
+  const [isSimulatingBot, setIsSimulatingBot] = useState(false);
+  const [copiedWebhook, setCopiedWebhook] = useState(false);
+
   useEffect(() => {
     fetch('/api/sessions')
       .then((res) => res.json())
@@ -28,7 +37,120 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
       })
       .catch((err) => console.error('Failed to load sessions:', err))
       .finally(() => setLoadingSessions(false));
-  }, []);
+
+    fetch('/api/auth/status')
+      .then((res) => res.json())
+      .then((status) => {
+        setAuthStatus(status);
+      })
+      .catch((err) => console.error('Failed to load auth status:', err));
+
+    if (user?.accessToken) {
+      fetch('https://api.github.com/user/repos?sort=updated&per_page=8', {
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+          Accept: 'application/vnd.github.v3+json'
+        }
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const mapped = data.map((r) => ({
+              name: r.full_name,
+              branch: r.default_branch || 'main',
+              botStatus: 'Active',
+              stars: r.stargazers_count || 0
+            }));
+            setRepositories((prev) => {
+              const combined = [...mapped];
+              if (!combined.some((r) => r.name === 'examples/demo-bug-repo')) {
+                combined.push({ name: 'examples/demo-bug-repo', branch: 'main', botStatus: 'Mounted Sandbox', stars: 1 });
+              }
+              return combined;
+            });
+          }
+        })
+        .catch((err) => console.warn('Could not fetch GitHub repos with token:', err));
+    }
+  }, [user]);
+
+  // Test Bot Modal State (Allows adding screenshot, issue text, and comment to any repo)
+  const [testModalOpen, setTestModalOpen] = useState(false);
+  const [modalRepo, setModalRepo] = useState('examples/demo-bug-repo');
+  const [modalIssueNumber, setModalIssueNumber] = useState('42');
+  const [modalIssueTitle, setModalIssueTitle] = useState('TypeError: Cannot read properties of undefined (reading "trim")');
+  const [modalIssueBody, setModalIssueBody] = useState(
+    'Submitting the login form with an empty email causes an unhandled runtime error:\n\nTypeError: Cannot read properties of undefined (reading "trim")\n   at validateEmail (src/validation.js:14)'
+  );
+  const [modalComment, setModalComment] = useState('/patchbridge please investigate repository and propose a fix');
+  const [modalScreenshotFile, setModalScreenshotFile] = useState(null);
+  const [modalScreenshotPreview, setModalScreenshotPreview] = useState('/demo-assets/error-screenshot.png');
+
+  const openTestBotModal = (targetRepo = 'examples/demo-bug-repo') => {
+    setModalRepo(targetRepo);
+    setTestModalOpen(true);
+  };
+
+  const handleModalImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setModalScreenshotFile(file);
+      setModalScreenshotPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleModalUseDemoScreenshot = () => {
+    setModalScreenshotFile(null);
+    setModalScreenshotPreview('/demo-assets/error-screenshot.png');
+  };
+
+  const handleModalClearImage = () => {
+    setModalScreenshotFile(null);
+    setModalScreenshotPreview(null);
+  };
+
+  const handleDispatchBot = async (e) => {
+    e.preventDefault();
+    setIsSimulatingBot(true);
+    try {
+      const formData = new FormData();
+      formData.append('repoFullName', modalRepo);
+      formData.append('issueNumber', modalIssueNumber);
+      formData.append('issueTitle', modalIssueTitle);
+      formData.append('issueBody', modalIssueBody);
+      formData.append('commentBody', modalComment);
+
+      if (modalScreenshotFile) {
+        formData.append('screenshot', modalScreenshotFile);
+      }
+
+      const res = await fetch('/api/github/simulate', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error(`Bot simulation failed: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      if (data.sessionId) {
+        setTestModalOpen(false);
+        onSelectSession(data.sessionId);
+      }
+    } catch (err) {
+      alert(`Bot execution failed: ${err.message}`);
+    } finally {
+      setIsSimulatingBot(false);
+    }
+  };
+
+  const handleCopyWebhookUrl = () => {
+    const url = `${window.location.origin}/api/github/webhook`;
+    navigator.clipboard.writeText(url);
+    setCopiedWebhook(true);
+    setTimeout(() => setCopiedWebhook(false), 2000);
+  };
 
   const handleAddRepo = (e) => {
     e.preventDefault();
@@ -124,7 +246,7 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
 
         <div className="flex items-center gap-3">
           <div className="font-mono text-[11px] px-2.5 py-1 bg-white/[0.03] border border-white/10 rounded text-emerald-400">
-            BOT: READY FOR /patchbridge
+            {authStatus.botConfigured ? 'BOT: CONNECTED (PAT)' : 'BOT: READY (DEV MODE)'}
           </div>
           <button
             onClick={onLogout}
@@ -134,6 +256,60 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
           </button>
         </div>
       </div>
+
+      {/* Developer OAuth / Switch to GitHub Account Banner */}
+      {user?.isDemoSession && (
+        <div className="p-4 bg-[#121215] border border-white/10 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-start sm:items-center gap-2.5 text-white/70">
+            <span className={authStatus.oauthConfigured ? 'text-emerald-400 text-sm' : 'text-amber-400 text-sm'}>
+              {authStatus.oauthConfigured ? '✓' : 'ℹ'}
+            </span>
+            <div>
+              {authStatus.oauthConfigured ? (
+                <div>
+                  <span className="text-white font-medium">GitHub OAuth is configured in .env!</span>
+                  <div className="text-[11px] text-white/50">
+                    Switch from demo developer session to your personal GitHub account to manage live repos.
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <span className="text-white font-medium">Developer Mode Active (@octocat)</span>
+                  <div className="text-[11px] text-white/50">
+                    To authenticate with a real GitHub account, add <code className="text-white/80">GITHUB_CLIENT_ID</code> and <code className="text-white/80">GITHUB_CLIENT_SECRET</code> to your <code className="text-white/80">.env</code>.
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {authStatus.oauthConfigured ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await fetch('/api/auth/github/url');
+                  const data = await res.json();
+                  if (data.configured && data.authUrl) {
+                    window.location.href = data.authUrl;
+                  }
+                }}
+                className="px-4 py-2 bg-white text-black hover:bg-white/90 rounded text-xs font-semibold whitespace-nowrap active:scale-[0.98] transition-all shadow-sm"
+              >
+                CONNECT GITHUB ACCOUNT ›
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleSimulateBot('examples/demo-bug-repo')}
+                disabled={isSimulatingBot}
+                className="px-3 py-1.5 bg-white text-black hover:bg-white/90 rounded text-[11px] font-medium whitespace-nowrap active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {isSimulatingBot ? 'TRIGGERING BOT...' : 'TEST BOT ON DEMO REPO ›'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <div className="flex items-center gap-1 border-b border-white/[0.08] pb-px font-mono text-xs">
@@ -344,19 +520,31 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
               {repositories.map((repo, i) => (
                 <div
                   key={i}
-                  className="p-3 bg-[#0d0d0e] border border-white/[0.04] rounded flex items-center justify-between"
+                  className="p-3 bg-[#0d0d0e] border border-white/[0.04] rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                 >
                   <div>
-                    <div className="text-white/90 font-medium text-[11px]">
-                      {repo.name}
+                    <div className="text-white/90 font-medium text-[11px] flex items-center gap-2">
+                      <span>{repo.name}</span>
+                      {repo.stars > 0 && (
+                        <span className="text-[10px] text-white/30">★ {repo.stars}</span>
+                      )}
                     </div>
                     <div className="text-[10px] text-white/40">
-                      default branch: {repo.branch}
+                      branch: {repo.branch}
                     </div>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-emerald-400/90 bg-emerald-950/20">
-                    {repo.botStatus}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-emerald-400/90 bg-emerald-950/20">
+                      {repo.botStatus}
+                    </span>
+                    <button
+                      onClick={() => openTestBotModal(repo.name)}
+                      disabled={isSimulatingBot}
+                      className="text-[10px] px-2 py-1 bg-white/[0.04] hover:bg-white/10 text-white/70 hover:text-white rounded border border-white/10 transition-colors disabled:opacity-40"
+                    >
+                      {isSimulatingBot ? 'TRIGGERING...' : 'TEST BOT'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -364,18 +552,66 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
 
           <div className="lg:col-span-5 space-y-4">
             <div className="p-5 bg-[#121215] border border-white/[0.08] rounded-lg font-mono text-xs space-y-3">
-              <div className="text-white/40 uppercase tracking-wider text-[10px]">
-                GITHUB WEBHOOK CONFIGURATION
+              <div className="flex items-center justify-between">
+                <span className="text-white/40 uppercase tracking-wider text-[10px]">
+                  GITHUB WEBHOOK ENDPOINT
+                </span>
+                <span className="text-emerald-400 text-[10px]">LISTENING</span>
               </div>
-              <div className="p-2.5 bg-[#0d0d0e] border border-white/[0.04] rounded text-white/70 select-all break-all text-[11px]">
-                https://patchbridge.app/api/github/webhook
+              <div className="flex items-center gap-2">
+                <div className="p-2.5 bg-[#0d0d0e] border border-white/[0.04] rounded text-white/70 select-all break-all text-[11px] flex-1">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/api/github/webhook` : '/api/github/webhook'}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyWebhookUrl}
+                  className="px-2.5 py-2.5 bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white rounded text-[10px] transition-colors"
+                >
+                  {copiedWebhook ? 'COPIED!' : 'COPY'}
+                </button>
               </div>
               <p className="text-[11px] text-white/40 font-sans leading-relaxed">
-                Add this URL as a GitHub Webhook with Content-Type <code className="text-white/70 font-mono">application/json</code> and events <code className="text-white/70 font-mono">issue_comment</code>.
+                Add this URL in GitHub (<code className="text-white/70 font-mono">Settings › Webhooks › Add webhook</code>) with Content-Type <code className="text-white/70 font-mono">application/json</code> and event <code className="text-white/70 font-mono">issue_comment</code>.
               </p>
-              <div className="pt-2 border-t border-white/[0.04] text-[10px] text-white/50">
-                TRIGGER SYNTAX: <code className="text-white font-mono">/patchbridge</code> on any issue.
+              <div className="pt-2 border-t border-white/[0.04] space-y-1.5 text-[10px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40">TRIGGER COMMAND:</span>
+                  <span className="text-white font-mono">/patchbridge</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40">HMAC SIGNATURE:</span>
+                  <span className={authStatus.webhookSecretConfigured ? 'text-emerald-400' : 'text-white/50'}>
+                    {authStatus.webhookSecretConfigured ? 'VERIFIED (SECRET)' : 'OPTIONAL (DEV)'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40">COMMENT POSTER (PAT):</span>
+                  <span className={authStatus.botConfigured ? 'text-emerald-400' : 'text-amber-400'}>
+                    {authStatus.botConfigured ? 'ACTIVE (GITHUB_TOKEN)' : 'DEV SIMULATION'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40">REASONING ENGINE:</span>
+                  <span className="text-white font-mono">{authStatus.model}</span>
+                </div>
               </div>
+            </div>
+
+            <div className="p-4 bg-[#121215] border border-white/[0.06] rounded-lg font-mono text-xs space-y-2">
+              <span className="text-white/40 uppercase tracking-wider text-[10px] block">
+                BOT SIMULATION STUDIO
+              </span>
+              <p className="text-[11px] text-white/40 font-sans leading-relaxed">
+                Trigger an interactive mock GitHub Issue comment with custom screenshot, stack trace, and repository target.
+              </p>
+              <button
+                type="button"
+                onClick={() => openTestBotModal('examples/demo-bug-repo')}
+                disabled={isSimulatingBot}
+                className="w-full py-2 bg-white text-black hover:bg-white/90 rounded text-xs font-medium font-mono active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {isSimulatingBot ? 'DISPATCHING BOT...' : 'CUSTOMIZE & EXECUTE BOT RUN ›'}
+              </button>
             </div>
           </div>
         </div>
@@ -443,6 +679,181 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Test Bot Modal */}
+      {testModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#121215] border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5 shadow-2xl font-mono text-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div>
+                <div className="text-[10px] text-white/40 tracking-wider uppercase">
+                  SIMULATE GITHUB BOT TRIGGER
+                </div>
+                <h3 className="text-sm font-semibold text-white mt-0.5">
+                  /patchbridge on {modalRepo}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTestModalOpen(false)}
+                className="text-white/40 hover:text-white p-1 rounded hover:bg-white/[0.06] transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleDispatchBot} className="space-y-4 font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div className="sm:col-span-3 space-y-1">
+                  <label className="text-[10px] text-white/40 uppercase block">Target Repository</label>
+                  <select
+                    value={modalRepo}
+                    onChange={(e) => setModalRepo(e.target.value)}
+                    className="w-full bg-[#0d0d0e] border border-white/[0.08] rounded p-2 text-xs text-white focus:outline-none focus:border-white/30"
+                  >
+                    <option value="examples/demo-bug-repo">examples/demo-bug-repo (Local Sandbox)</option>
+                    {repositories.map((r, i) => (
+                      <option key={i} value={r.name}>{r.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] text-white/40 uppercase block">Issue Number</label>
+                  <input
+                    type="number"
+                    value={modalIssueNumber}
+                    onChange={(e) => setModalIssueNumber(e.target.value)}
+                    className="w-full bg-[#0d0d0e] border border-white/[0.08] rounded p-2 text-xs text-white focus:outline-none focus:border-white/30"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/40 uppercase block">Issue Title</label>
+                <input
+                  type="text"
+                  value={modalIssueTitle}
+                  onChange={(e) => setModalIssueTitle(e.target.value)}
+                  placeholder="e.g. TypeError on submit when email is empty"
+                  className="w-full bg-[#0d0d0e] border border-white/[0.08] rounded p-2 text-xs text-white focus:outline-none focus:border-white/30"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] text-white/40 uppercase block">Defect Description / Stack Trace</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalIssueTitle('TypeError: Cannot read properties of undefined (reading "trim")');
+                      setModalIssueBody('Submitting the login form with an empty email causes an unhandled runtime error:\n\nTypeError: Cannot read properties of undefined (reading "trim")\n   at validateEmail (src/validation.js:14)');
+                      handleModalUseDemoScreenshot();
+                    }}
+                    className="text-[10px] text-white/40 hover:text-white transition-colors"
+                  >
+                    [ LOAD SAMPLE DEFECT ]
+                  </button>
+                </div>
+                <textarea
+                  rows={4}
+                  value={modalIssueBody}
+                  onChange={(e) => setModalIssueBody(e.target.value)}
+                  placeholder="Paste bug details, steps to reproduce, or stack trace..."
+                  className="w-full bg-[#0d0d0e] border border-white/[0.08] rounded p-2.5 text-xs text-white focus:outline-none focus:border-white/30 font-mono leading-relaxed"
+                  required
+                />
+              </div>
+
+              {/* Screenshot attachment */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-white/40 uppercase block">Attach Defect Screenshot (Multimodal Input)</label>
+                <div className="p-3 bg-[#0d0d0e] border border-white/[0.06] rounded flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {modalScreenshotPreview ? (
+                      <img
+                        src={modalScreenshotPreview}
+                        alt="Preview"
+                        className="w-14 h-14 object-cover rounded border border-white/10"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded border border-dashed border-white/20 flex items-center justify-center text-white/30 text-[10px]">
+                        NO IMG
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-[11px] text-white/80">
+                        {modalScreenshotFile ? modalScreenshotFile.name : modalScreenshotPreview ? 'demo-screenshot.png' : 'No screenshot selected'}
+                      </div>
+                      <div className="text-[10px] text-white/40">
+                        PNG or JPG analyzed by Gemma 4 vision
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/10 border border-white/10 text-white rounded cursor-pointer text-[10px] transition-colors">
+                      CHOOSE IMAGE
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleModalImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleModalUseDemoScreenshot}
+                      className="px-2.5 py-1.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-white/60 hover:text-white rounded text-[10px] transition-colors"
+                    >
+                      USE DEMO
+                    </button>
+                    {modalScreenshotPreview && (
+                      <button
+                        type="button"
+                        onClick={handleModalClearImage}
+                        className="text-white/40 hover:text-white text-[10px] px-1"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/40 uppercase block">GitHub Bot Trigger Command</label>
+                <input
+                  type="text"
+                  value={modalComment}
+                  onChange={(e) => setModalComment(e.target.value)}
+                  className="w-full bg-[#0d0d0e] border border-white/[0.08] rounded p-2 text-xs text-emerald-400 focus:outline-none focus:border-white/30"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => setTestModalOpen(false)}
+                  className="px-4 py-2 bg-transparent hover:bg-white/[0.05] border border-white/10 text-white/60 hover:text-white rounded text-xs transition-colors"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSimulatingBot}
+                  className="px-5 py-2 bg-white text-black hover:bg-white/90 rounded text-xs font-semibold active:scale-[0.98] transition-all disabled:opacity-40"
+                >
+                  {isSimulatingBot ? 'TRIGGERING BOT...' : 'DISPATCH /patchbridge RUN ›'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

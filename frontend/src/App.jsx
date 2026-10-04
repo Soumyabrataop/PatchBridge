@@ -37,11 +37,43 @@ export function App() {
     return () => window.removeEventListener('popstate', checkPath);
   }, []);
 
-  const handleLogin = () => {
+  useEffect(() => {
+    // Check for incoming GitHub OAuth callback redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('auth_success') === '1' && params.get('user')) {
+      try {
+        const decoded = JSON.parse(atob(decodeURIComponent(params.get('user'))));
+        setUser(decoded);
+        localStorage.setItem('patchbridge_user', JSON.stringify(decoded));
+        setActiveView('workspace');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) {
+        console.error('Failed to parse OAuth user payload:', e);
+      }
+    } else if (params.get('auth_error')) {
+      console.warn('OAuth Error:', params.get('auth_error'));
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/auth/github/url');
+      const data = await res.json();
+      if (data.configured && data.authUrl) {
+        window.location.href = data.authUrl;
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not query GitHub OAuth URL:', err);
+    }
+
+    // Fallback: Instant developer demo session if OAuth credentials are not yet entered in .env
     const developerUser = {
       username: 'octocat',
       name: 'GitHub Developer',
-      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4'
+      avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
+      isDemoSession: true
     };
     setUser(developerUser);
     localStorage.setItem('patchbridge_user', JSON.stringify(developerUser));
