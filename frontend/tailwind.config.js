@@ -8,23 +8,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
+        graphite: {
+          50: '#f6f6f7',
+          100: '#e1e1e4',
+          200: '#c5c5cb',
+          300: '#a3a3ac',
+          400: '#7e8084', // Silver dust / graphite haze
+          500: '#5c5e63',
+          600: '#3f4146',
+          700: '#2a2b2f',
+          800: '#1a1a1e', // Surface cards
+          850: '#141417',
+          900: '#0d0d0e', // Slate abyss canvas
+          950: '#070708', // Deep shadow
         },
-        dark: {
-          900: '#0b0f19',
-          800: '#111827',
-          700: '#1f2937',
-          600: '#374151',
-        }
+        chalk: '#f5f5f7',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+        sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Menlo', 'monospace']
       }
     },
   },

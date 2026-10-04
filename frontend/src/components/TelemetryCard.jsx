@@ -1,60 +1,54 @@
 import React from 'react';
-import { ShieldAlert, Activity, GitFork, CheckCircle2 } from 'lucide-react';
 
 export function TelemetryCard({ telemetry = {} }) {
   const {
     severity = 'Medium',
     blastRadius = 'Local',
     impactedComponents = [],
-    codeHealthScore = '90/100'
+    codeHealthScore = '92/100'
   } = telemetry;
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 shadow-sm">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800/80">
-        <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-emerald-400" />
-          <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-            Issue Telemetry & Blast Radius
-          </h3>
-        </div>
-        <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          Health: {codeHealthScore}
+    <div className="bg-[#121215] border border-white/[0.08] rounded-lg p-5 font-mono text-xs">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/[0.06]">
+        <span className="text-white/60 tracking-wider text-[11px] uppercase">
+          SPECIFICATION TELEMETRY
+        </span>
+        <span className="text-[10px] px-1.5 py-0.5 border border-white/10 rounded text-white/50">
+          HEALTH: {codeHealthScore}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <div className="p-3 bg-slate-950/50 rounded-lg border border-slate-800/60">
-          <div className="flex items-center gap-1.5 text-slate-400 mb-1">
-            <ShieldAlert className="h-3.5 w-3.5 text-rose-400" />
-            <span>Severity Rating</span>
+      <div className="grid grid-cols-2 gap-3 text-[11px]">
+        <div className="p-3 bg-[#0d0d0e] border border-white/[0.04] rounded">
+          <div className="text-white/40 text-[10px] mb-1 uppercase tracking-wider">
+            Severity
           </div>
-          <div className="font-semibold text-slate-200">
+          <div className="text-white/90 font-medium">
             {severity}
           </div>
         </div>
 
-        <div className="p-3 bg-slate-950/50 rounded-lg border border-slate-800/60">
-          <div className="flex items-center gap-1.5 text-slate-400 mb-1">
-            <GitFork className="h-3.5 w-3.5 text-blue-400" />
-            <span>Blast Radius</span>
+        <div className="p-3 bg-[#0d0d0e] border border-white/[0.04] rounded">
+          <div className="text-white/40 text-[10px] mb-1 uppercase tracking-wider">
+            Blast Radius
           </div>
-          <div className="font-semibold text-slate-200">
+          <div className="text-white/90 font-medium">
             {blastRadius}
           </div>
         </div>
       </div>
 
       {impactedComponents.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-slate-800/60">
-          <span className="text-[11px] text-slate-400 block mb-2 font-medium">
-            Impacted Components / Functions:
+        <div className="mt-4 pt-3 border-t border-white/[0.06]">
+          <span className="text-[10px] text-white/40 block mb-2 uppercase tracking-wider">
+            Impacted Modules:
           </span>
           <div className="flex flex-wrap gap-1.5">
             {impactedComponents.map((comp, idx) => (
               <span
                 key={idx}
-                className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300"
+                className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/70 text-[10px]"
               >
                 {comp}
               </span>

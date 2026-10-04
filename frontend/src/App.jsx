@@ -7,7 +7,6 @@ export function App() {
   const [currentSessionId, setCurrentSessionId] = useState(null);
 
   useEffect(() => {
-    // Check initial path (e.g., /session/:id or #/session/:id)
     const checkPath = () => {
       const pathname = window.location.pathname;
       const hash = window.location.hash;
@@ -39,7 +38,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0d0d0e] text-[#e8eaed] flex flex-col font-sans selection:bg-white/20 selection:text-white">
       <Navbar onNavigateHome={handleNavigateHome} />
 
       <main className="flex-1">
@@ -50,8 +49,8 @@ export function App() {
         )}
       </main>
 
-      <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-        <p>PatchBridge — Multimodal Open-Source Debugging Agent • Gemma 4 Track</p>
+      <footer className="border-t border-white/[0.06] py-6 text-center font-mono text-[11px] text-white/30">
+        PATCHBRIDGE // GEMMA 4 MULTIMODAL AGENT • OPEN-SOURCE APACHE-2.0
       </footer>
     </div>
   );
