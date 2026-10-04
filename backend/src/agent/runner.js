@@ -266,18 +266,28 @@ async function runDeterministicTriage(sessionId, issueText, repoPath, screenshot
   let targetLoginFormFile = 'src/LoginForm.jsx';
   
   if (searchResults.matches && searchResults.matches.length > 0) {
-    const validMatch = searchResults.matches.find(m => m.filePath.endsWith('validation.js') && !m.filePath.includes('test'));
+    const validMatch = searchResults.matches.find(m => {
+      const p = m.file || m.filePath;
+      return p && p.endsWith('validation.js') && !p.includes('test');
+    });
     if (validMatch) {
-      targetValidationFile = validMatch.filePath;
+      targetValidationFile = validMatch.file || validMatch.filePath;
     }
   }
 
   // Also check file list if search didn't pinpoint exact file
   if (fileList.files && fileList.files.length > 0) {
-    const foundVal = fileList.files.find(f => f.endsWith('validation.js') && !f.includes('test'));
-    if (foundVal) targetValidationFile = foundVal;
-    const foundLogin = fileList.files.find(f => f.endsWith('LoginForm.jsx'));
-    if (foundLogin) targetLoginFormFile = foundLogin;
+    const foundVal = fileList.files.find(f => {
+      const p = typeof f === 'string' ? f : f?.path;
+      return p && p.endsWith('validation.js') && !p.includes('test');
+    });
+    if (foundVal) targetValidationFile = typeof foundVal === 'string' ? foundVal : foundVal.path;
+
+    const foundLogin = fileList.files.find(f => {
+      const p = typeof f === 'string' ? f : f?.path;
+      return p && p.endsWith('LoginForm.jsx');
+    });
+    if (foundLogin) targetLoginFormFile = typeof foundLogin === 'string' ? foundLogin : foundLogin.path;
   }
 
   sessionStore.appendTrace(sessionId, {
