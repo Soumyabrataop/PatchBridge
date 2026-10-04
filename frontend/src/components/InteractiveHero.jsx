@@ -35,13 +35,11 @@ export function InteractiveHero({ onExploreClick }) {
   return (
     <div className="relative">
       {/* =========================================================================
-          CHAPTER 01: HERO PORTAL & LIVE REASONING RADAR
-          - Background: Softened, harmonious AeroShards floating naturally.
-          - Left: Electric Logo with blended warm platinum/graphite filament glow.
-          - Right: Live animated typography and reasoning value proposition.
-          - Interactive radar telemetry cleanly integrated into the chapter.
+          HERO SECTION (Pure branding, Electric Logo, headline & CTA with swirling shards)
+          - No chapter labels here.
+          - No cluttered radar box inside the hero.
          ========================================================================= */}
-      <section className="relative w-full min-h-[600px] lg:min-h-[680px] flex items-center justify-center overflow-hidden border-b border-white/[0.08] pt-16 pb-12">
+      <section className="relative w-full min-h-[540px] lg:min-h-[620px] flex items-center justify-center overflow-hidden border-b border-white/[0.08] pt-20 pb-16">
         {/* Layer 0: AeroShards in warm graphite & slate monochrome */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-60">
           <AeroShards
@@ -80,11 +78,10 @@ export function InteractiveHero({ onExploreClick }) {
         <div className="absolute inset-0 bg-radial-vignette pointer-events-none z-[1]" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0d0e]/30 to-[#0d0d0e] pointer-events-none z-[1]" />
 
-        {/* Content Container */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 space-y-12">
-          {/* Main Hero Grid: Logo + Typography */}
+        {/* Hero Content Container: Logo on Left, Typography on Right */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left: Electric Logo, warm platinum/anodized silver blending with shards */}
+            {/* Left: Electric Logo */}
             <div className="lg:col-span-5 flex items-center justify-center">
               <div className="w-full max-w-[320px] sm:max-w-[360px] h-[280px] sm:h-[320px] relative flex items-center justify-center">
                 <ElectricLogo
@@ -111,9 +108,9 @@ export function InteractiveHero({ onExploreClick }) {
 
             {/* Right: Typography Headline & CTAs */}
             <div className="lg:col-span-7 space-y-5">
-              <div className="flex items-center gap-2 font-mono text-[11px] text-white/50 tracking-wider uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>CHAPTER 01 // MULTIMODAL DEBUGGING INGESTION</span>
+              <div className="inline-flex items-center gap-2 font-mono text-[11px] text-white/50 tracking-wider uppercase bg-[#121215]/60 border border-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>AUTONOMOUS MULTIMODAL DEBUGGING AGENT</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-white tracking-tight leading-[1.08] font-sans">
@@ -143,52 +140,73 @@ export function InteractiveHero({ onExploreClick }) {
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Integrated Live Reasoning Loop Telemetry Box */}
-          <div className="bg-[#121215]/80 backdrop-blur-md border border-white/[0.08] rounded-xl p-5 font-mono text-xs shadow-2xl relative overflow-hidden max-w-4xl mx-auto">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06] text-[10px] text-white/40">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                <span className="w-2 h-2 rounded-full bg-white/20"></span>
-                <span className="ml-2 tracking-wider">GEMMA-4 REASONING ENGINE // RADAR TRACE</span>
+      {/* =========================================================================
+          CHAPTER 01: AUTONOMOUS REASONING LOOP & LIVE GEMMA 4 RADAR
+          Placed cleanly below hero as its own distinct chapter.
+         ========================================================================= */}
+      <section className="py-20 border-b border-white/[0.08] max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="mb-10 space-y-2">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-sky-400 tracking-wider uppercase">
+            <span>CHAPTER 01</span>
+            <span>//</span>
+            <span>AUTONOMOUS REASONING LOOP</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-normal text-white tracking-tight font-sans">
+            Deterministic verification before proposing code.
+          </h2>
+          <p className="text-xs sm:text-sm text-white/50 max-w-xl leading-relaxed font-sans">
+            Watch real-time step observations as Gemma 4 queries MCP tools, confirms symbol declarations, and cites exact file lines before suggesting a unified patch.
+          </p>
+        </div>
+
+        {/* Live Radar Inspector Box */}
+        <div className="bg-[#121215]/80 backdrop-blur-md border border-white/[0.08] rounded-xl p-6 font-mono text-xs shadow-2xl relative overflow-hidden">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/[0.06] text-[10px] text-white/40">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-white/20"></span>
+              <span className="w-2 h-2 rounded-full bg-white/20"></span>
+              <span className="w-2 h-2 rounded-full bg-white/20"></span>
+              <span className="ml-2 tracking-wider">GEMMA-4 REASONING ENGINE // RADAR TRACE</span>
+            </div>
+            <span className="text-emerald-400/90 font-medium animate-pulse">LIVE REASONING</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+            <div className="md:col-span-8 space-y-2.5">
+              <div className="text-[10px] text-white/40 tracking-wider">
+                {steps[activeStep].phase}
               </div>
-              <span className="text-emerald-400/90 font-medium animate-pulse">LIVE REASONING</span>
+              <div className="p-3 bg-[#0d0d0e]/90 border border-white/[0.08] rounded text-[11px] text-white/90 font-mono break-all leading-relaxed">
+                {steps[activeStep].code}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              <div className="md:col-span-8 space-y-2.5">
-                <div className="text-[10px] text-white/40 tracking-wider">
-                  {steps[activeStep].phase}
-                </div>
-                <div className="p-3 bg-[#0d0d0e]/90 border border-white/[0.08] rounded text-[11px] text-white/90 font-mono break-all leading-relaxed">
-                  {steps[activeStep].code}
-                </div>
+            <div className="md:col-span-4 space-y-2 border-t md:border-t-0 md:border-l border-white/[0.06] pt-3 md:pt-0 md:pl-5">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-white/40">TARGET:</span>
+                <span className="text-sky-300 font-semibold">{steps[activeStep].target}</span>
               </div>
-
-              <div className="md:col-span-4 space-y-2 border-t md:border-t-0 md:border-l border-white/[0.06] pt-2 md:pt-0 md:pl-4">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-white/40">TARGET:</span>
-                  <span className="text-sky-300 font-semibold">{steps[activeStep].target}</span>
-                </div>
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-white/40">VERIFICATION:</span>
-                  <span className="text-emerald-400 font-medium">{steps[activeStep].status}</span>
-                </div>
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-white/40">VERIFICATION:</span>
+                <span className="text-emerald-400 font-medium">{steps[activeStep].status}</span>
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-4 gap-1.5 pt-3 mt-3 border-t border-white/[0.06]">
-              {steps.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveStep(i)}
-                  className={`h-1.5 rounded transition-colors ${
-                    i === activeStep ? 'bg-white' : 'bg-white/10 hover:bg-white/30'
-                  }`}
-                />
-              ))}
-            </div>
+          {/* Radar step timeline indicators */}
+          <div className="grid grid-cols-4 gap-2 pt-4 mt-4 border-t border-white/[0.06]">
+            {steps.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveStep(i)}
+                className={`h-1.5 rounded transition-colors ${
+                  i === activeStep ? 'bg-white' : 'bg-white/10 hover:bg-white/30'
+                }`}
+              />
+            ))}
           </div>
         </div>
       </section>
