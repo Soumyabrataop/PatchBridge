@@ -145,9 +145,10 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
     }
   };
 
+  const webhookProxyUrl = 'https://smee.io/patchbridge-soumya';
+
   const handleCopyWebhookUrl = () => {
-    const url = `${window.location.origin}/api/github/webhook`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(webhookProxyUrl);
     setCopiedWebhook(true);
     setTimeout(() => setCopiedWebhook(false), 2000);
   };
@@ -559,8 +560,8 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
                 <span className="text-emerald-400 text-[10px]">LISTENING</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="p-2.5 bg-[#0d0d0e] border border-white/[0.04] rounded text-white/70 select-all break-all text-[11px] flex-1">
-                  {typeof window !== 'undefined' ? `${window.location.origin}/api/github/webhook` : '/api/github/webhook'}
+                <div className="p-2.5 bg-[#0d0d0e] border border-white/[0.04] rounded text-emerald-300/90 select-all break-all text-[11px] flex-1 font-mono">
+                  {webhookProxyUrl}
                 </div>
                 <button
                   type="button"
@@ -571,7 +572,7 @@ export function WorkspaceDashboard({ user, onLogout, onSelectSession }) {
                 </button>
               </div>
               <p className="text-[11px] text-white/40 font-sans leading-relaxed">
-                Add this URL in GitHub (<code className="text-white/70 font-mono">Settings › Webhooks › Add webhook</code>) with Content-Type <code className="text-white/70 font-mono">application/json</code> and event <code className="text-white/70 font-mono">issue_comment</code>.
+                Add this URL in GitHub (<code className="text-white/70 font-mono">Settings › Webhooks › Add webhook</code>) with Content-Type <code className="text-white/70 font-mono">application/json</code> and event <code className="text-white/70 font-mono">Issue comments</code>.
               </p>
               <div className="pt-2 border-t border-white/[0.04] space-y-1.5 text-[10px]">
                 <div className="flex items-center justify-between">
