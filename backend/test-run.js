@@ -1,6 +1,17 @@
 import path from 'node:path';
+import fs from 'node:fs';
+import dotenv from 'dotenv';
 import { runTriageSession } from './src/agent/runner.js';
 import { sessionStore } from './src/store/sessionStore.js';
+
+// Load root .env
+const rootEnv = path.resolve('..', '.env');
+const localEnv = path.resolve('.env');
+if (fs.existsSync(rootEnv)) {
+  dotenv.config({ path: rootEnv });
+} else {
+  dotenv.config({ path: localEnv });
+}
 
 async function testHeadlessTriage() {
   console.log('🧪 Starting PatchBridge Part 1 Headless Triage Test...\n');

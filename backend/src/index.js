@@ -1,11 +1,19 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
+import fs from 'node:fs';
 import dotenv from 'dotenv';
 import sessionRoutes from './routes/sessionRoutes.js';
 import streamRoutes from './routes/streamRoutes.js';
 
-dotenv.config();
+// Load root .env or fallback to local directory
+const rootEnv = path.resolve('..', '.env');
+const localEnv = path.resolve('.env');
+if (fs.existsSync(rootEnv)) {
+  dotenv.config({ path: rootEnv });
+} else {
+  dotenv.config({ path: localEnv });
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
