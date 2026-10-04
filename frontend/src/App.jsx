@@ -56,6 +56,20 @@ export function App() {
     }
   }, []);
 
+  // Ensure active user token is synced to backend on mount
+  useEffect(() => {
+    if (user?.username && user?.accessToken) {
+      fetch('/api/auth/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: user.username,
+          accessToken: user.accessToken
+        })
+      }).catch(console.warn);
+    }
+  }, [user]);
+
   const handleLogin = async () => {
     try {
       const res = await fetch('/api/auth/github/url');

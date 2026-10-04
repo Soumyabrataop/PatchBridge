@@ -183,22 +183,40 @@ async function triggerTriageWorkflow({
  * Handles incoming GitHub Webhooks (issue_comment.created)
  */
 router.post('/webhook', async (req, res) => {
+  const event = req.headers['x-github-event'];
+  let payload = req.body || {};
+
+  // If payload is string or urlencoded JSON in req.body.payload
+  if (typeof payload === 'string') {
+    try { payload = JSON.parse(payload); } catch {}
+  }
+  if (payload && payload.payload) {
+    try {
+      payload = typeof payload.payload === 'string' ? JSON.parse(payload.payload) : payload.payload;
+    } catch {}
+  }
+
+  const commentBody = payload?.comment?.body || payload?.body || '';
+
+  console.log(`[GitHub Webhook Received] event="${event}", action="${payload?.action}", hasComment=${Boolean(payload?.comment)}, commentBody="${commentBody.substring(0, 60)}"`);
+  if (!payload?.comment) {
+    console.log(`[GitHub Webhook Debug Keys]:`, typeof req.body, Object.keys(req.body || {}));
+  }
+
   if (!verifyGitHubSignature(req)) {
+    console.warn('[GitHub Webhook] Invalid signature verification');
     return res.status(401).json({ error: 'Invalid HMAC signature in x-hub-signature-256' });
   }
 
-  const event = req.headers['x-github-event'];
-  const payload = req.body;
-
   // We are interested in issue comments
   if (event !== 'issue_comment' && !payload.comment) {
-    return res.status(200).json({ ignored: true, reason: 'Not an issue_comment event' });
+    console.log(`[GitHub Webhook] Ignored: event is "${event}", not issue_comment`);
+    return res.status(200).json({ ignored: true, reason: `Not an issue_comment event (was ${event})` });
   }
-
-  const commentBody = payload.comment?.body || '';
   
   // Check if comment triggers /patchbridge
   if (!commentBody.toLowerCase().includes('/patchbridge')) {
+    console.log(`[GitHub Webhook] Ignored: comment body does not include /patchbridge`);
     return res.status(200).json({ ignored: true, reason: 'Comment does not contain /patchbridge' });
   }
 

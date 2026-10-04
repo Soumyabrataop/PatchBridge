@@ -124,4 +124,17 @@ router.get('/status', (req, res) => {
   });
 });
 
+/**
+ * POST /api/auth/sync
+ * Allows authenticated frontend to sync active user access token to backend
+ */
+router.post('/sync', (req, res) => {
+  const { username, accessToken } = req.body || {};
+  if (username && accessToken) {
+    tokenRegistry.setToken(username, accessToken);
+    return res.json({ synced: true, username });
+  }
+  res.status(400).json({ error: 'Missing username or accessToken' });
+});
+
 export default router;
