@@ -23,10 +23,15 @@ router.get('/:id/stream', (req, res) => {
     'Access-Control-Allow-Origin': '*'
   });
 
-  // Helper to send SSE message
+  // Helper to send SSE message safely
   const sendEvent = (event, data) => {
-    res.write(`event: ${event}\n`);
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    if (res.writableEnded || res.destroyed) return;
+    try {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    } catch {
+      // Ignore write errors if client disconnected
+    }
   };
 
   // Send initial session state and all existing trace events
@@ -39,15 +44,6 @@ router.get('/:id/stream', (req, res) => {
     report: session.report
   });
 
-  // If already completed or failed, close stream after sending final state
-  if (session.status === 'completed') {
-    sendEvent('completed', { report: session.report });
-    return res.end();
-  } else if (session.status === 'failed') {
-    sendEvent('failed', { error: session.error });
-    return res.end();
-  }
-
   // Real-time event listeners
   const onTrace = (traceStep) => {
     sendEvent('trace', traceStep);
@@ -55,12 +51,11 @@ router.get('/:id/stream', (req, res) => {
 
   const onComplete = ({ report }) => {
     sendEvent('completed', { report });
-    res.end();
+    // Keep connection alive for trace viewing, or end safely
   };
 
   const onFail = ({ error }) => {
     sendEvent('failed', { error });
-    res.end();
   };
 
   sessionStore.on(`trace:${sessionId}`, onTrace);
@@ -69,7 +64,15 @@ router.get('/:id/stream', (req, res) => {
 
   // Heartbeat to keep connection alive
   const heartbeatInterval = setInterval(() => {
-    res.write(': ping\n\n');
+    if (res.writableEnded || res.destroyed) {
+      clearInterval(heartbeatInterval);
+      return;
+    }
+    try {
+      res.write(': ping\n\n');
+    } catch {
+      clearInterval(heartbeatInterval);
+    }
   }, 15000);
 
   // Clean up listeners on client disconnect
