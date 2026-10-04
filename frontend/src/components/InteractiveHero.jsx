@@ -73,26 +73,26 @@ export function InteractiveHero({ onExploreClick }) {
           />
         </div>
 
-        {/* Layer 1: Frameless, Unbounded Electric Logo scaled to maximum length */}
+        {/* Layer 1: Frameless, Unbounded Electric Logo with reduced scale and graphite-silver electric glow */}
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
-          <div className="w-full max-w-2xl h-[380px] sm:h-[480px] lg:h-[560px] relative flex items-center justify-center">
+          <div className="w-full max-w-xl h-[320px] sm:h-[400px] lg:h-[460px] relative flex items-center justify-center">
             <ElectricLogo
               src="/patchbridge-logo.svg"
-              color="#ffffff"
-              glowColor="#38bdf8"
-              scale={0.88}
-              intensity={1.2}
-              glow={1.3}
-              strands={5}
-              bend={0.65}
-              crackle={1.6}
-              arcs={2}
-              flicker={0.5}
-              fill={0.04}
-              speed={2.6}
+              color="#e2e8f0"
+              glowColor="#64748b"
+              scale={0.68}
+              intensity={1.05}
+              glow={0.9}
+              strands={4}
+              bend={0.5}
+              crackle={1.3}
+              arcs={1}
+              flicker={0.35}
+              fill={0.0}
+              speed={2.2}
               interactive={true}
-              cursorIntensity={1.1}
-              cursorRadius={110}
+              cursorIntensity={0.8}
+              cursorRadius={90}
             />
           </div>
         </div>

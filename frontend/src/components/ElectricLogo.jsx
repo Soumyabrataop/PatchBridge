@@ -571,9 +571,13 @@ void main() {
   float tint = (1.0 - exp(-body * gain * 1.2)) * grow * grow * (1.0 - ink * 0.82);
   color += uGlowColor * tint * (1.0 - alpha);
   alpha += tint * (1.0 - alpha);
+  
+  // Cut off imperceptible alpha haze so WebGL canvas is truly 100% transparent outside logo
+  alpha = smoothstep(0.015, 1.0, alpha);
   float grain = (fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0;
-  alpha = clamp(alpha + grain, 0.0, 1.0);
-  fragColor = vec4(clamp(color + grain, 0.0, alpha), alpha);
+  // Apply grain strictly to visible pixels to prevent rectangular canvas footprint
+  vec3 finalColor = clamp(color + grain * alpha, 0.0, 1.0);
+  fragColor = vec4(finalColor * alpha, alpha);
 }
 `;
 
