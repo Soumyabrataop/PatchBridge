@@ -105,18 +105,18 @@ Repository input may initially be:
 
 Do **not** require GitHub OAuth for the MVP.
 
-### Output
+### Output & Live Session Experience
 
 Render the analysis in this order:
 
 ```text
 INPUT
   ↓
-AGENT TRACE
+LIVE AGENT TRACE (Streaming SSE)
   ↓
 ROOT CAUSE
   ↓
-CODE EVIDENCE
+CODE EVIDENCE & TELEMETRY
   ↓
 PATCH / DIFF
   ↓
@@ -125,18 +125,22 @@ TEST PLAN
 CONTRIBUTION READY
 ```
 
-The interface should make the agent's reasoning process observable without exposing private chain-of-thought.
-
-Show only concise, useful tool activity such as:
+The interface supports live streaming of the agent's investigation over Server-Sent Events (SSE) at `/session/:sessionId`:
+- Anyone with the session link can view the live reasoning trace in real time.
+- The interface makes the agent's reasoning process observable without exposing private chain-of-thought.
+- Shows concise, useful tool activity (including MCP and local repo calls) such as:
 
 ```text
-✓ Parsed issue
-✓ Inspected screenshot
-✓ Searched repository for "validateEmail"
-✓ Read src/auth/validation.js
-✓ Read src/components/LoginForm.jsx
-✓ Generated candidate patch
+✓ Parsed issue and extracted visual clues from screenshot
+✓ Connected to repository context
+✓ [MCP] Searched repository for "validateEmail"
+✓ [MCP] Read src/auth/validation.js:15-40
+✓ [MCP] Read src/components/LoginForm.jsx:30-55
+✓ Correlated UI runtime crash with missing null check
+✓ Generated candidate patch and test cases
 ```
+
+- Telemetry & Evidence card highlights the exact lines in code, blast radius, and impacted modules.
 
 ---
 
@@ -144,7 +148,7 @@ Show only concise, useful tool activity such as:
 
 The GitHub bot is a thin interface over the same PatchBridge agent.
 
-## MVP interaction
+## MVP interaction (Two-Phase Feedback)
 
 A developer opens a GitHub issue containing:
 
@@ -157,35 +161,52 @@ Then comments:
 /patchbridge
 ```
 
-The bot should:
+The bot executes a responsive two-phase interaction:
 
-1. Receive the issue context.
-2. Obtain repository context.
-3. Use the same PatchBridge analysis pipeline.
-4. Post a concise response to the issue.
+### Phase 1: Immediate Acknowledgment & Live Session Tracking
 
-Example response structure:
+Within seconds of receiving the webhook trigger, the bot posts an initial comment with a unique public session link so the developer and community can watch the agent reason and invoke tools live:
 
 ```text
-PatchBridge analyzed this issue.
+⚡ **PatchBridge is on the case!**
 
-Root cause:
-<short explanation>
+I've initialized a private debugging session for this issue. You can watch my real-time reasoning and MCP repo tool calls as I investigate:
 
-Evidence:
-- path/to/file.js:42
-- path/to/other-file.jsx:18
+👉 **[Watch Live Debug Session](https://patchbridge.app/session/<sessionId>)**
 
-Suggested fix:
-<short diff or concise code change>
+Investigating root cause and code evidence now...
+```
 
-Tests:
-- case 1
-- case 2
-- case 3
+### Phase 2: Completion Report & Proposed Fix
 
-Full analysis:
-<website link>
+Once the Gemma 4 investigation loop finishes, the bot posts a second comment (or updates the tracking comment) with the evidence-backed findings:
+
+```text
+🎯 **PatchBridge Analysis Complete!**
+
+### Root Cause
+<short explanation of why the bug occurred>
+
+### Code Evidence
+- `src/auth/validation.js:42` — Missing null check on empty email string input
+- `src/components/LoginForm.jsx:18` — Form submit handler crashes on undefined error object
+
+### Suggested Fix
+```diff
+--- a/src/auth/validation.js
++++ b/src/auth/validation.js
+@@ -42,3 +42,5 @@
++  if (!email || email.trim() === '') {
++    return { valid: false, error: 'Email is required' };
++  }
+```
+
+### Recommended Test Cases
+- [ ] Submitting login form with empty email field displays validation warning without crashing
+- [ ] Submitting login form with whitespace-only email string is rejected cleanly
+
+📊 **Full Telemetry & Interactive Diff:**
+[View Complete Report](https://patchbridge.app/session/<sessionId>)
 ```
 
 ## Important scope rule
@@ -225,17 +246,30 @@ This division is intentional.
 
 ---
 
-# 7. Agent Tooling
+# 7. Agent Tooling & MCP (Model Context Protocol) Integration
 
-Keep the agent small.
+The PatchBridge agent uses the **Model Context Protocol (MCP)** architecture to standardize how Gemma 4 discovers and invokes repository investigation tools.
 
-Initial tools:
+### MCP Tool Providers
 
-```text
-list_files()
-search_repo(query)
-read_file(path)
-```
+The agent connects to two interchangeable tool providers through MCP:
+
+1. **GitHub MCP Server (Remote / Webhook Mode)**:
+   - `github_read_file(owner, repo, path, branch)` — Reads specific file contents from the target GitHub repository.
+   - `github_search_code(owner, repo, query)` — Searches code, function names, and error strings across the repository.
+   - `github_list_directory(owner, repo, path)` — Lists directories and files to discover project structure.
+   - `github_create_issue_comment(owner, repo, issue_number, body)` — Posts phase 1 acknowledgment and phase 2 triage reports.
+
+2. **Local Repo Tools / Filesystem MCP (Local & Demo Mode)**:
+   - `list_files()` — Explores repository layout with automatic ignore filtering.
+   - `search_repo(query)` — Greps repository for tokens, function definitions, and crash messages.
+   - `read_file(path)` — Reads source file contents.
+
+### Tool Call Guarantees
+
+- **Deterministic Execution**: The agent does not run unmonitored shell commands.
+- **Progressive Disclosure**: The agent starts with directory mapping and keyword search, then reads targeted files. It never blindly ingests the entire codebase.
+- **Trace Transparency**: Every MCP tool call and its execution status (`started`, `completed`, `result summary`) are emitted live to the active session stream.
 
 Optional later tools:
 
@@ -245,8 +279,6 @@ run_tests(test_command)
 ```
 
 Only add more tools when they clearly improve the demo.
-
-The agent should not blindly read the entire repository.
 
 ---
 
@@ -637,13 +669,15 @@ The project is considered MVP-complete when all of these are true:
 - [ ] User can upload a screenshot.
 - [ ] System can inspect a demo repository.
 - [ ] Gemma 4 is used for multimodal understanding.
-- [ ] Agent can call repository tools.
+- [ ] Agent discovers and calls MCP repository tools (`read_file`, `search_repo`, `list_files`).
+- [ ] Agent streams real-time reasoning trace & tool calls over SSE to `/session/:sessionId`.
 - [ ] Agent can identify a likely root cause.
-- [ ] Root cause includes repository evidence.
+- [ ] Root cause includes concrete repository evidence citations.
 - [ ] Agent can generate a candidate diff.
 - [ ] Agent can suggest relevant tests.
-- [ ] Website presents the workflow clearly.
-- [ ] GitHub bot can respond to `/patchbridge`, or bot work is explicitly deferred because core MVP stability is at risk.
+- [ ] Website presents the workflow and code telemetry clearly.
+- [ ] GitHub bot immediately responds to `/patchbridge` with a live session tracking link.
+- [ ] GitHub bot delivers final summary comment with evidence and diff when analysis finishes.
 - [ ] Public GitHub repository exists.
 - [ ] Open-source license exists.
 - [ ] Agent Skill exists and is valid.
@@ -663,9 +697,11 @@ They should be able to see:
 ```text
 multimodal input
 +
-agentic repository investigation
+agentic repository investigation (via MCP)
 +
-concrete code evidence
+live observable reasoning trace (via SSE)
++
+concrete code evidence & telemetry
 +
 useful patch
 +
@@ -681,17 +717,12 @@ The demo should be understandable within 30 seconds and impressive within 3 minu
 Do not keep adding features once the following demo works reliably:
 
 ```text
-1. Upload screenshot.
-2. Enter issue.
-3. Load demo repository.
-4. Click Analyze.
-5. Watch concise agent trace.
-6. See root cause.
-7. See exact evidence.
-8. See patch.
-9. See tests.
-10. See PR summary.
-11. Repeat the same analysis from GitHub with /patchbridge.
+1. User opens GitHub issue with error screenshot and types /patchbridge (or uses web UI).
+2. Bot instantly replies with acknowledgment comment + live session URL.
+3. User opens session URL and watches live SSE agent trace as Gemma 4 calls MCP tools.
+4. Agent identifies root cause, pinpoints code evidence lines, diff, and tests.
+5. Bot comments back on GitHub issue with concise evidence, patch, and full report link.
+6. Web report renders interactive diff, blast radius telemetry, and PR summary.
 ```
 
 **Reliability beats feature count.**

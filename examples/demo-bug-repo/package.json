@@ -1,0 +1,13 @@
+{
+  "name": "demo-bug-repo",
+  "version": "1.0.0",
+  "description": "Reproduction repository for PatchBridge demo: LoginForm validation crash",
+  "main": "src/LoginForm.jsx",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/validation.test.js"
+  },
+  "keywords": ["react", "auth", "validation", "demo"],
+  "author": "PatchBridge Team",
+  "license": "MIT"
+}
