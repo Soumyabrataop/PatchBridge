@@ -246,10 +246,25 @@ router.post('/webhook', async (req, res) => {
     return res.status(200).json({ ignored: true, reason: `Not an issue_comment event (was ${event})` });
   }
   
-  // Check if comment triggers /patchbridge
-  if (!commentBody.toLowerCase().includes('/patchbridge')) {
-    console.log(`[GitHub Webhook] Ignored: comment body does not include /patchbridge`);
-    return res.status(200).json({ ignored: true, reason: 'Comment does not contain /patchbridge' });
+  // Ignore comments posted by bots to prevent infinite response loops
+  const commenter = payload.comment?.user?.login || '';
+  const commenterType = payload.comment?.user?.type || '';
+  if (commenter.endsWith('[bot]') || commenterType === 'Bot') {
+    console.log(`[GitHub Webhook] Ignored: comment posted by bot (${commenter})`);
+    return res.status(200).json({ ignored: true, reason: 'Bot comment ignored' });
+  }
+
+  // Only run on Issues, NOT Pull Requests (payload.issue.pull_request exists if the issue is a PR)
+  if (payload.issue?.pull_request) {
+    console.log(`[GitHub Webhook] Ignored: #${payload.issue?.number} is a Pull Request, not an Issue`);
+    return res.status(200).json({ ignored: true, reason: 'Pull requests ignored; triage runs on issues' });
+  }
+  
+  // Check if comment explicitly triggers slash command /patchbridge (isolated word, not URL substring)
+  const isCommandTriggered = /(^|\s)\/patchbridge(\s|$)/i.test(commentBody);
+  if (!isCommandTriggered) {
+    console.log(`[GitHub Webhook] Ignored: comment does not contain command /patchbridge`);
+    return res.status(200).json({ ignored: true, reason: 'Comment does not contain slash command /patchbridge' });
   }
 
   const repoFullName = payload.repository?.full_name;
