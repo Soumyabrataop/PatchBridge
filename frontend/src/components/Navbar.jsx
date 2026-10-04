@@ -2,7 +2,7 @@ import React from 'react';
 
 export function Navbar({ onNavigateHome, user, onLogin, onOpenWorkspace, activeView }) {
   return (
-    <header className="border-b border-white/[0.05] bg-transparent backdrop-blur-[2px] sticky top-0 z-50 transition-colors">
+    <header className="absolute top-0 inset-x-0 z-50 bg-transparent border-b border-white/[0.04] pointer-events-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between font-mono text-xs">
         {/* Left: Clean Brand */}
         <div 

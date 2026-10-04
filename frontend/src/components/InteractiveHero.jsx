@@ -35,16 +35,16 @@ export function InteractiveHero({ onExploreClick }) {
   return (
     <div className="relative">
       {/* =========================================================================
-          SECTION 1: HERO PORTAL WITH UNBOUNDED ELECTRIC LOGO & SWIRLING AEROPARTICLES
-          Full width, frameless, natural transparency with AeroShards flowing around and over it.
+          SECTION 1: HERO PORTAL WITH ELECTRIC LOGO ON LEFT & ANIMATED TEXT ON RIGHT
+          AeroShards swirling continuously across the background underneath the transparent floating navbar.
          ========================================================================= */}
-      <section className="relative w-full h-[520px] sm:h-[580px] lg:h-[640px] flex items-center justify-center overflow-hidden border-b border-white/[0.08]">
-        {/* Layer 0: Background AeroShards Wind Sculpture */}
+      <section className="relative w-full min-h-[580px] sm:min-h-[640px] lg:min-h-[700px] flex items-center justify-center overflow-hidden border-b border-white/[0.08] pt-16">
+        {/* Layer 0: Continuous Background AeroShards Wind Sculpture */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <AeroShards
             backgroundColor="#0d0d0e"
-            shardColor="#404454"
-            accentColor="#a1a6b4"
+            shardColor="#454958"
+            accentColor="#a6abbb"
             placement="full"
             flow="stream"
             material="chrome"
@@ -73,66 +73,93 @@ export function InteractiveHero({ onExploreClick }) {
           />
         </div>
 
-        {/* Layer 1: Frameless, Unbounded Electric Logo with reduced scale and graphite-silver electric glow */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-auto">
-          <div className="w-full max-w-xl h-[320px] sm:h-[400px] lg:h-[460px] relative flex items-center justify-center">
-            <ElectricLogo
-              src="/patchbridge-logo.svg"
-              color="#e2e8f0"
-              glowColor="#64748b"
-              scale={0.68}
-              intensity={1.05}
-              glow={0.9}
-              strands={4}
-              bend={0.5}
-              crackle={1.3}
-              arcs={1}
-              flicker={0.35}
-              fill={0.0}
-              speed={2.2}
-              interactive={true}
-              cursorIntensity={0.8}
-              cursorRadius={90}
-            />
+        {/* Layer 1: Electric Logo (Left) + Animated Typography (Right) */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Electric Logo (reduced scale, perfectly centered in bounds) */}
+            <div className="lg:col-span-5 flex items-center justify-center">
+              <div className="w-full max-w-[340px] sm:max-w-[400px] h-[300px] sm:h-[360px] relative flex items-center justify-center">
+                <ElectricLogo
+                  src="/patchbridge-logo.svg"
+                  color="#f8fafc"
+                  glowColor="#64748b"
+                  scale={0.58}
+                  intensity={1.15}
+                  glow={1.0}
+                  strands={4}
+                  bend={0.5}
+                  crackle={1.4}
+                  arcs={2}
+                  flicker={0.35}
+                  fill={0.0}
+                  speed={2.4}
+                  interactive={true}
+                  cursorIntensity={0.85}
+                  cursorRadius={85}
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Animated Typography & Value Proposition */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 font-mono text-[11px] text-white/50 tracking-wider uppercase bg-[#121215]/60 border border-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>MULTIMODAL REASONING • GEMMA 4</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-white tracking-tight leading-[1.08] font-sans">
+                From visual error to <br className="hidden sm:inline" />
+                <span className="bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+                  verified unified diff.
+                </span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-white/60 leading-relaxed max-w-xl font-sans">
+                PatchBridge parses issue screenshots and traverses live repository trees using{' '}
+                <span className="text-white/90 font-mono">gemma-4-31b-it</span> and the{' '}
+                <span className="text-white/90 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-4 font-mono text-xs">
+                <button
+                  onClick={onExploreClick}
+                  className="px-6 py-3 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform cursor-pointer shadow-lg"
+                >
+                  OPEN WORKSPACE STUDIO ›
+                </button>
+                <div className="px-4 py-3 border border-white/10 rounded text-white/60 text-[11px] bg-[#121215]/60 backdrop-blur-sm flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                  <span>EVIDENCE-BACKED INVESTIGATION</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Ambient bottom gradient blend into the content below */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0d0d0e] to-transparent pointer-events-none z-20" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d0d0e] to-transparent pointer-events-none z-20" />
       </section>
 
       {/* =========================================================================
-          SECTION 2: EDITORIAL PITCH & LIVE GEMMA 4 RADAR
+          SECTION 2: LIVE GEMMA 4 RADAR INSPECTOR & REASONING FLOW
          ========================================================================= */}
       <section className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          {/* Left: Headline & Action */}
-          <div className="lg:col-span-7 space-y-5">
-            <h1 className="text-4xl sm:text-5xl font-normal text-white tracking-tight leading-[1.1] font-sans">
-              From visual error to verified unified diff.
-            </h1>
-
-            <p className="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl font-sans">
-              PatchBridge correlates issue screenshots with actual repository code using Google's{' '}
-              <span className="text-white/90 font-mono">Gemma 4 (gemma-4-31b-it)</span> and the{' '}
-              <span className="text-white/90 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-3 font-mono text-xs">
-              <button
-                onClick={onExploreClick}
-                className="px-6 py-3 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform cursor-pointer shadow-lg"
-              >
-                OPEN WORKSPACE STUDIO ›
-              </button>
-              <div className="px-3 py-2.5 border border-white/10 rounded text-white/60 text-[11px] bg-[#121215]/80 backdrop-blur-md">
-                RESPONSE TIME: &lt; 20S
-              </div>
+          {/* Left: Section narrative */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="font-mono text-[11px] text-sky-400 tracking-wider uppercase">
+              CHAPTER 01 // AUTONOMOUS REASONING LOOP
             </div>
+            <h2 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
+              Deterministic verification before proposing code.
+            </h2>
+            <p className="text-xs sm:text-sm text-white/50 leading-relaxed font-sans">
+              Watch real-time step observations as Gemma 4 queries MCP tools, confirms symbol declarations, and cites exact file lines before suggesting a unified patch.
+            </p>
           </div>
 
           {/* Right: Animated Inspector / Radar Widget */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-7">
             <div className="bg-[#121215]/90 backdrop-blur-md border border-white/[0.08] rounded-xl p-5 font-mono text-xs shadow-2xl relative overflow-hidden">
               {/* Terminal Title Bar */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06] text-[10px] text-white/40">
@@ -146,7 +173,7 @@ export function InteractiveHero({ onExploreClick }) {
               </div>
 
               {/* Step Flow */}
-              <div className="space-y-3 min-h-[170px] flex flex-col justify-center">
+              <div className="space-y-3 min-h-[160px] flex flex-col justify-center">
                 <div className="text-[10px] text-white/40 tracking-wider">
                   {steps[activeStep].phase}
                 </div>
@@ -182,7 +209,7 @@ export function InteractiveHero({ onExploreClick }) {
           </div>
         </div>
 
-        {/* BOTTOM TAG: FIG. 000 Pushed to Bottom of Hero */}
+        {/* BOTTOM TAG: FIG. 000 */}
         <div className="mt-16 pt-8 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-mono text-[11px] text-white/50 tracking-wider uppercase bg-[#121215]/80 border border-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
