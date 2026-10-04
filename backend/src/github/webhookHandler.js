@@ -12,7 +12,8 @@ import {
   downloadImage,
   cloneTargetRepo,
   cleanupEphemeralRepo,
-  postIssueComment
+  postIssueComment,
+  createBranchAndPullRequest
 } from '../tools/githubTools.js';
 import { formatPhase1Comment, formatPhase2Comment } from './botNotifier.js';
 
@@ -146,10 +147,41 @@ async function triggerTriageWorkflow({
         repoPath
       });
 
-      // 4. Phase 2: Post final completion comment to the GitHub issue
+      // 4. Automated Pull Request Creation (if patch exists and repo is remote)
+      let prInfo = null;
+      if (githubToken && report.suggestedPatch && !repoFullName.includes('demo-bug-repo')) {
+        sessionStore.appendTrace(sessionId, {
+          type: 'tool_call',
+          title: '[GitHub] Create Branch & PR',
+          detail: `Generating automated contribution branch and pull request for issue #${issueNumber}`
+        });
+
+        try {
+          prInfo = await createBranchAndPullRequest({
+            repoFullName,
+            issueNumber,
+            patch: report.suggestedPatch,
+            report,
+            repoPath: ephemeralRepoDir,
+            githubToken
+          });
+
+          if (prInfo?.pullRequestUrl) {
+            sessionStore.appendTrace(sessionId, {
+              type: 'observation',
+              title: '[GitHub] PR Created Successfully',
+              detail: `Pull Request #${prInfo.pullRequestNumber} opened on ${prInfo.branchName}: ${prInfo.pullRequestUrl}`
+            });
+          }
+        } catch (prErr) {
+          console.warn('[GitHub Webhook] Pull request creation failed:', prErr.message);
+        }
+      }
+
+      // 5. Phase 2: Post final completion comment to the GitHub issue
       if (!isSimulation) {
         try {
-          const reportBody = formatPhase2Comment(sessionId, report, frontendUrl);
+          const reportBody = formatPhase2Comment(sessionId, report, frontendUrl, prInfo);
           await postIssueComment(repoFullName, issueNumber, reportBody, githubToken);
           console.log(`[GitHub Webhook] Phase 2 report posted to ${repoFullName}#${issueNumber}`);
         } catch (commentErr) {

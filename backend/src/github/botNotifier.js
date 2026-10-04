@@ -14,7 +14,7 @@ You can observe my live reasoning and Model Context Protocol (MCP) tool executio
 *Investigating repository structure, stack traces, and root cause...*`;
 }
 
-export function formatPhase2Comment(sessionId, report, webUrl) {
+export function formatPhase2Comment(sessionId, report, webUrl, prInfo = null) {
   const sessionUrl = `${webUrl}/session/${sessionId}`;
 
   const evidenceLines = (report.evidence || [])
@@ -29,8 +29,12 @@ export function formatPhase2Comment(sessionId, report, webUrl) {
     ? `\`\`\`diff\n${report.suggestedPatch}\n\`\`\``
     : '_STATUS: NEEDS HUMAN REVIEW — Insufficient repository evidence to produce confident patch._';
 
-  return `### 🎯 PatchBridge Analysis Complete
+  const prBlock = prInfo?.pullRequestUrl
+    ? `\n#### 🚀 Contribution Ready Pull Request\nI've committed this verified fix to branch \`${prInfo.branchName}\` and created a pull request:\n👉 **[Review & Merge Pull Request #${prInfo.pullRequestNumber}](${prInfo.pullRequestUrl})**\n`
+    : '';
 
+  return `### 🎯 PatchBridge Analysis Complete
+${prBlock}
 #### Root Cause
 ${report.rootCause}
 

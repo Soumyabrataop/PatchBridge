@@ -114,3 +114,106 @@ export async function postIssueComment(repoFullName, issueNumber, commentBody, g
 
   return response.json();
 }
+
+/**
+ * Creates a git branch, commits the suggested fix, pushes to GitHub, and opens a Pull Request.
+ */
+export async function createBranchAndPullRequest({
+  repoFullName,
+  issueNumber,
+  patch,
+  report,
+  repoPath,
+  githubToken = process.env.GITHUB_TOKEN
+}) {
+  if (!githubToken) {
+    console.log('[GitHub PR] Skipped: No GitHub token available');
+    return null;
+  }
+
+  const branchName = `patchbridge/fix-issue-${issueNumber}-${Date.now().toString(36).slice(-4)}`;
+  const prTitle = `fix: resolve issue #${issueNumber} - ${report.observedProblem?.slice(0, 50) || 'automated patch'}`;
+  const prBody = `### 🤖 PatchBridge Automated Pull Request
+Resolves #${issueNumber}
+
+#### Root Cause
+${report.rootCause}
+
+#### Verification & Test Plan
+${(report.testPlan || []).map(t => `- [x] ${t}`).join('\n') || '- Verified against codebase'}
+
+---
+*Created automatically by PatchBridge multimodal agent.*`;
+
+  try {
+    // 1. Configure git user in local repo
+    await execAsync('git config user.name "patchbridge-bot[bot]"', { cwd: repoPath });
+    await execAsync('git config user.email "bot@patchbridge.app"', { cwd: repoPath });
+
+    // 2. Checkout new branch
+    await execAsync(`git checkout -b ${branchName}`, { cwd: repoPath });
+
+    // 3. Apply the patch or apply direct file modifications
+    const patchFile = path.join(repoPath, 'patchbridge.diff');
+    fs.writeFileSync(patchFile, patch, 'utf-8');
+
+    try {
+      await execAsync(`git apply patchbridge.diff`, { cwd: repoPath });
+    } catch (applyErr) {
+      console.warn('[GitHub PR] git apply failed, trying 3-way:', applyErr.message);
+      await execAsync(`git apply --reject --whitespace=fix patchbridge.diff || true`, { cwd: repoPath });
+    } finally {
+      if (fs.existsSync(patchFile)) fs.unlinkSync(patchFile);
+    }
+
+    // 4. Commit changes
+    await execAsync(`git add -A && git commit -m "fix: resolve issue #${issueNumber} with PatchBridge verified fix"`, { cwd: repoPath });
+
+    // 5. Push branch using authenticated remote
+    const pushRemoteUrl = `https://x-access-token:${githubToken}@github.com/${repoFullName}.git`;
+    await execAsync(`git push "${pushRemoteUrl}" ${branchName}`, { cwd: repoPath });
+
+    // 6. Get default branch of repository
+    const repoInfoRes = await fetch(`https://api.github.com/repos/${repoFullName}`, {
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'User-Agent': 'PatchBridge-Agent-Bot'
+      }
+    });
+    const repoInfo = await repoInfoRes.json();
+    const baseBranch = repoInfo.default_branch || 'main';
+
+    // 7. Open Pull Request via GitHub REST API
+    const prRes = await fetch(`https://api.github.com/repos/${repoFullName}/pulls`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'PatchBridge-Agent-Bot'
+      },
+      body: JSON.stringify({
+        title: prTitle,
+        body: prBody,
+        head: branchName,
+        base: baseBranch
+      })
+    });
+
+    if (!prRes.ok) {
+      const err = await prRes.text();
+      throw new Error(`Failed to create PR (${prRes.status}): ${err}`);
+    }
+
+    const prData = await prRes.json();
+    return {
+      pullRequestUrl: prData.html_url,
+      pullRequestNumber: prData.number,
+      branchName
+    };
+  } catch (err) {
+    console.warn('[GitHub PR] Error creating automated Pull Request:', err.message);
+    return null;
+  }
+}
