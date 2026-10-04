@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Mountain / Truss peaks -->
+  <path d="M12 82 L38 20 L58 56 L70 34 L88 82 Z" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Arch connecting bridge underneath -->
+  <path d="M12 82 Q50 62 88 82" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+</svg>

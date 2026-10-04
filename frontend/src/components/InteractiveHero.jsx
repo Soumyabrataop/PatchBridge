@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AeroShards from './AeroShards';
+import ElectricLogo from './ElectricLogo';
 
 export function InteractiveHero({ onExploreClick }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -32,72 +33,114 @@ export function InteractiveHero({ onExploreClick }) {
   ];
 
   return (
-    <div className="relative pt-16 pb-20 border-b border-white/[0.08] overflow-hidden">
-      {/* 1. AeroShards Animated WebGPU Wind Sculpture in Graphite */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-45">
+    <div className="relative pt-24 pb-28 border-b border-white/[0.08] overflow-hidden min-h-[640px] flex items-center">
+      {/* 1. AeroShards Animated WebGPU Wind Sculpture in Graphite (High visibility) */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-85">
         <AeroShards
           backgroundColor="#0d0d0e"
-          shardColor="#2b2d35"
-          accentColor="#686a73"
+          shardColor="#383b47"
+          accentColor="#9ca3af"
           placement="full"
           flow="stream"
-          material="pearl"
+          material="chrome"
           detail="balanced"
           effect="none"
-          scale={1}
-          spread={1}
-          depth={1}
-          speed={0.8}
-          spin={0.9}
+          scale={1.15}
+          spread={1.1}
+          depth={1.2}
+          speed={0.9}
+          spin={1.1}
           interaction="repel"
-          density={1.2}
-          shardSize={1.05}
-          stretch={1}
-          turbulence={0.9}
-          glow={0.6}
-          edgeSoftness={2}
-          bloom={0.3}
-          grain={0.04}
-          chromaticAberration={0.003}
+          density={1.6}
+          shardSize={1.25}
+          stretch={1.1}
+          turbulence={1.1}
+          glow={1.2}
+          edgeSoftness={1.8}
+          bloom={0.65}
+          grain={0.03}
+          chromaticAberration={0.005}
           transitionDuration={1}
-          interactionRadius={1.5}
-          interactionStrength={0.5}
-          rippleIntensity={0.8}
+          interactionRadius={1.8}
+          interactionStrength={0.7}
+          rippleIntensity={1.2}
           holdToGather={true}
         />
       </div>
 
-      {/* 2. Architectural Vignette & Grid Gradient Overlay */}
-      <div className="absolute inset-0 bg-radial-vignette pointer-events-none z-[1]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0d0e]/60 to-[#0d0d0e] pointer-events-none z-[1]" />
+      {/* 2. Soft Architectural Contrast Backdrop behind content */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0d0e]/40 to-[#0d0d0e]/90 pointer-events-none z-[1]" />
 
-      {/* 3. Hero Foreground Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center gap-2 font-mono text-[11px] text-white/40 tracking-wider uppercase mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>FIG. 000 // AUTONOMOUS MULTIMODAL DEBUGGING AGENT</span>
+      {/* 3. Hero Foreground Content - Shifted down with comfortable top spacing */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 w-full">
+        {/* Top Tag & Electric Logo Badge */}
+        <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-white/50 tracking-wider uppercase bg-[#121215]/80 border border-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>FIG. 000 // AUTONOMOUS MULTIMODAL DEBUGGING AGENT</span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono text-white/40">
+            <span>CORE: GEMMA 4</span>
+            <span>•</span>
+            <span>MCP ENABLED</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Left: Editorial Hero Pitch */}
-          <div className="lg:col-span-7 space-y-4">
+          {/* Left: Electric Logo Feature + Editorial Hero Pitch */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="flex items-center gap-5">
+              {/* Electric Logo Container with ambient electrical glow halo */}
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-2xl bg-[#121215]/80 border border-white/10 p-1 backdrop-blur-md shadow-2xl flex items-center justify-center overflow-hidden group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-emerald-500/20 blur-lg opacity-70 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                <ElectricLogo
+                  src="/patchbridge-logo.svg"
+                  color="#ffffff"
+                  glowColor="#38bdf8"
+                  scale={0.72}
+                  strands={4}
+                  bend={0.6}
+                  crackle={1.5}
+                  arcs={2}
+                  speed={2.6}
+                  interactive={true}
+                  cursorIntensity={1}
+                  cursorRadius={80}
+                />
+              </div>
+
+              <div>
+                <div className="font-mono text-[11px] text-sky-400 font-medium tracking-wider uppercase mb-1">
+                  PATCHBRIDGE CORE
+                </div>
+                <h2 className="text-xl sm:text-2xl font-medium text-white tracking-tight font-sans">
+                  Visual-to-Code Precision
+                </h2>
+                <p className="text-xs text-white/50 font-sans mt-0.5">
+                  Direct multimodal synthesis with live MCP exploration
+                </p>
+              </div>
+            </div>
+
             <h1 className="text-4xl sm:text-5xl font-normal text-white tracking-tight leading-[1.1] font-sans">
               From visual error to verified unified diff.
             </h1>
-            <p className="text-sm sm:text-base text-white/50 leading-relaxed max-w-xl font-sans">
+
+            <p className="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl font-sans">
               PatchBridge correlates issue screenshots with actual repository code using Google's{' '}
-              <span className="text-white/80 font-mono">Gemma 4 (gemma-4-31b-it)</span> and the{' '}
-              <span className="text-white/80 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
+              <span className="text-white/90 font-mono">Gemma 4 (gemma-4-31b-it)</span> and the{' '}
+              <span className="text-white/90 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3 font-mono text-xs">
               <button
                 onClick={onExploreClick}
-                className="px-5 py-2.5 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform cursor-pointer shadow-sm"
+                className="px-6 py-3 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform cursor-pointer shadow-lg"
               >
                 OPEN WORKSPACE STUDIO ›
               </button>
-              <div className="px-3 py-2 border border-white/10 rounded text-white/50 text-[11px] bg-[#0d0d0e]/50 backdrop-blur-sm">
+              <div className="px-3 py-2.5 border border-white/10 rounded text-white/60 text-[11px] bg-[#121215]/80 backdrop-blur-md">
                 RESPONSE TIME: &lt; 20S
               </div>
             </div>
@@ -105,7 +148,7 @@ export function InteractiveHero({ onExploreClick }) {
 
           {/* Right: Animated Inspector / Radar Widget */}
           <div className="lg:col-span-5">
-            <div className="bg-[#121215]/90 backdrop-blur-md border border-white/[0.08] rounded-lg p-4 font-mono text-xs shadow-2xl relative overflow-hidden">
+            <div className="bg-[#121215]/90 backdrop-blur-md border border-white/[0.08] rounded-xl p-5 font-mono text-xs shadow-2xl relative overflow-hidden">
               {/* Terminal Title Bar */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06] text-[10px] text-white/40">
                 <div className="flex items-center gap-1.5">
@@ -114,7 +157,7 @@ export function InteractiveHero({ onExploreClick }) {
                   <span className="w-2 h-2 rounded-full bg-white/20"></span>
                   <span className="ml-2 tracking-wider">GEMMA-4 // RADAR</span>
                 </div>
-                <span className="text-emerald-400/80 animate-pulse">LIVE REASONING</span>
+                <span className="text-emerald-400/90 font-medium animate-pulse">LIVE REASONING</span>
               </div>
 
               {/* Step Flow */}
@@ -123,7 +166,7 @@ export function InteractiveHero({ onExploreClick }) {
                   {steps[activeStep].phase}
                 </div>
 
-                <div className="p-2.5 bg-[#0d0d0e] border border-white/[0.06] rounded text-[11px] text-white/90 font-mono break-all">
+                <div className="p-3 bg-[#0d0d0e]/90 border border-white/[0.08] rounded text-[11px] text-white/90 font-mono break-all leading-relaxed">
                   {steps[activeStep].code}
                 </div>
 
@@ -144,7 +187,7 @@ export function InteractiveHero({ onExploreClick }) {
                   <button
                     key={i}
                     onClick={() => setActiveStep(i)}
-                    className={`h-1 rounded transition-colors ${
+                    className={`h-1.5 rounded transition-colors ${
                       i === activeStep ? 'bg-white' : 'bg-white/10 hover:bg-white/30'
                     }`}
                   />
