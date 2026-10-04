@@ -124,6 +124,11 @@ Both the **Website** and the **GitHub Bot** MUST execute the exact same agent lo
 - Tool discovery and invocation follow the Model Context Protocol (MCP) standard.
 - Use GitHub MCP tools for remote repositories and local filesystem tools for uploaded/demo repositories.
 
+### Rule 6: Professional Communication & Restrained Emoji Usage
+- Maintain a concise, technical, and professional tone across documentation, code comments, and UI copy.
+- Avoid emoji spam or purely decorative icons.
+- Use symbols or indicators strictly for functional status clarity (e.g., checkmarks `✓`, warnings `⚠`, or standard bullet points).
+
 ---
 
 ## 5. Development Priority Checklist
