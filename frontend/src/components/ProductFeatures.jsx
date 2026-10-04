@@ -33,10 +33,20 @@ export function ProductFeatures() {
   ];
 
   return (
-    <div className="py-16 border-b border-white/[0.08]">
+    <div className="py-20 border-b border-white/[0.08]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center gap-2 font-mono text-[11px] text-white/40 tracking-wider uppercase mb-8">
-          <span>FIG. 001 // SYSTEM ARCHITECTURE & CAPABILITIES</span>
+        <div className="mb-10 space-y-2">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-white/40 tracking-wider uppercase">
+            <span>CHAPTER 02</span>
+            <span>//</span>
+            <span>SYSTEM ARCHITECTURE & CAPABILITIES</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-normal text-white tracking-tight font-sans">
+            Deterministic reasoning from error capture to code patch.
+          </h2>
+          <p className="text-xs sm:text-sm text-white/50 max-w-xl leading-relaxed font-sans">
+            Engineered around four foundational pillars that eliminate LLM hallucinations when debugging complex repositories.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,9 +69,10 @@ export function ProductFeatures() {
                   {f.description}
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-white/[0.04] font-mono text-[10px] text-white/30 flex items-center justify-between">
-                <span>STATUS: VERIFIED</span>
-                <span>ZERO DRIFT</span>
+
+              <div className="pt-4 border-t border-white/[0.04] mt-4 flex items-center justify-between font-mono text-[10px] text-white/30">
+                <span>STATUS: OPERATIONAL</span>
+                <span>VERIFIED</span>
               </div>
             </div>
           ))}
