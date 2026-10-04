@@ -56,9 +56,10 @@ export async function runTriageSession(sessionId, options = {}) {
       parameters: tool.parameters
     }));
 
-    // Use Gemma 4 instruction-tuned multimodal model
+    // Target model: gemini-2.5-flash (fast multimodal reasoning with tool-calling) or configured GEMMA_MODEL
+    const targetModel = process.env.GEMMA_MODEL || 'gemini-2.5-flash';
     const model = genAI.getGenerativeModel({
-      model: process.env.GEMMA_MODEL || 'gemma-4-31b-it',
+      model: targetModel,
       systemInstruction: AGENT_SYSTEM_PROMPT,
       tools: [{ functionDeclarations }]
     });
