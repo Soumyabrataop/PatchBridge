@@ -57,6 +57,29 @@ class SessionStore extends EventEmitter {
     return null;
   }
 
+  listSessions() {
+    // Read all sessions from memory and disk
+    if (fs.existsSync(this.storageDir)) {
+      try {
+        const files = fs.readdirSync(this.storageDir);
+        for (const file of files) {
+          if (file.endsWith('.json')) {
+            const id = file.replace('.json', '');
+            if (!this.sessions.has(id)) {
+              this.getSession(id);
+            }
+          }
+        }
+      } catch {
+        // Ignore read errors
+      }
+    }
+
+    return Array.from(this.sessions.values()).sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  }
+
   appendTrace(id, step) {
     const session = this.getSession(id);
     if (!session) return;

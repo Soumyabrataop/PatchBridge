@@ -83,6 +83,26 @@ router.post('/', upload.single('screenshot'), async (req, res) => {
 });
 
 /**
+ * GET /api/sessions
+ * List all triage sessions
+ */
+router.get('/', (req, res) => {
+  const sessions = sessionStore.listSessions();
+  res.json({
+    sessions: sessions.map(s => ({
+      id: s.id,
+      status: s.status,
+      issueText: s.issueText,
+      repoName: s.repoName,
+      hasScreenshot: Boolean(s.screenshotPath),
+      traceCount: s.trace?.length || 0,
+      createdAt: s.createdAt,
+      updatedAt: s.updatedAt
+    }))
+  });
+});
+
+/**
  * GET /api/sessions/:id
  * Retrieve session state and completed report
  */
