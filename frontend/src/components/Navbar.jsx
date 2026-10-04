@@ -1,32 +1,15 @@
 import React from 'react';
-import ElectricLogo from './ElectricLogo';
 
 export function Navbar({ onNavigateHome, user, onLogin, onOpenWorkspace, activeView }) {
   return (
-    <header className="border-b border-white/[0.08] bg-[#0d0d0e]/95 backdrop-blur-md sticky top-0 z-50">
+    <header className="border-b border-white/[0.08] bg-[#0d0d0e]/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between font-mono text-xs">
-        {/* Left: Electric Logo + Project Brand */}
+        {/* Left: Clean Brand */}
         <div 
           onClick={onNavigateHome}
           className="flex items-center gap-3 cursor-pointer group select-none"
         >
-          {/* Mini ElectricLogo in Navbar */}
-          <div className="w-8 h-8 relative flex items-center justify-center -my-1 rounded overflow-hidden">
-            <ElectricLogo
-              src="/patchbridge-logo.svg"
-              color="#ffffff"
-              glowColor="#38bdf8"
-              scale={0.85}
-              strands={3}
-              bend={0.4}
-              crackle={1.2}
-              arcs={1}
-              speed={2.2}
-              interactive={true}
-            />
-          </div>
-
-          <span className="font-semibold text-white tracking-wider text-sm flex items-center gap-1.5">
+          <span className="font-semibold text-white tracking-widest text-sm hover:text-white/80 transition-colors">
             PATCHBRIDGE
           </span>
           <span className="text-[10px] px-1.5 py-0.2 border border-white/10 text-white/50 rounded">
