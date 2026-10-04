@@ -14,6 +14,11 @@ export function validatePassword(password) {
 
 export function validateEmail(email) {
   // Line 18: BUG - Direct call to .trim() without guarding against null or undefined
+  // Guard against null, undefined, or non-string inputs
+  if (!email || typeof email !== 'string') {
+    return { valid: false, error: 'Email is required' };
+  }
+
   const normalized = email.trim().toLowerCase();
 
   if (normalized.length === 0) {
