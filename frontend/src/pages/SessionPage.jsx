@@ -59,20 +59,27 @@ export function SessionPage({ sessionId, onBack }) {
       eventSource.close();
     });
 
-    eventSource.onerror = () => {
+    // Backup periodic fetch to ensure smooth live updates
+    const pollInterval = setInterval(() => {
       fetch(`/api/sessions/${sessionId}`)
         .then((res) => res.json())
         .then((data) => {
-          setSession(data);
-          setStatus(data.status);
-          if (data.trace) setTrace(data.trace);
-          if (data.report) setReport(data.report);
+          if (data && data.status) {
+            setSession(data);
+            setStatus(data.status);
+            if (data.trace && data.trace.length > 0) setTrace(data.trace);
+            if (data.report) setReport(data.report);
+            if (data.status === 'completed' || data.status === 'failed') {
+              clearInterval(pollInterval);
+            }
+          }
         })
         .catch(console.error);
-    };
+    }, 2000);
 
     return () => {
       eventSource.close();
+      clearInterval(pollInterval);
     };
   }, [sessionId]);
 
