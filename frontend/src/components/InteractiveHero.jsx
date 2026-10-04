@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import AeroShards from './AeroShards';
 
 export function InteractiveHero({ onExploreClick }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -30,19 +31,48 @@ export function InteractiveHero({ onExploreClick }) {
     }
   ];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % steps.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, [steps.length]);
-
   return (
-    <div className="relative pt-12 pb-16 border-b border-white/[0.08]">
-      {/* Background Architectural Grid Accent */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
+    <div className="relative pt-16 pb-20 border-b border-white/[0.08] overflow-hidden">
+      {/* 1. AeroShards Animated WebGPU Wind Sculpture in Graphite */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-45">
+        <AeroShards
+          backgroundColor="#0d0d0e"
+          shardColor="#2b2d35"
+          accentColor="#686a73"
+          placement="full"
+          flow="stream"
+          material="pearl"
+          detail="balanced"
+          effect="none"
+          scale={1}
+          spread={1}
+          depth={1}
+          speed={0.8}
+          spin={0.9}
+          interaction="repel"
+          density={1.2}
+          shardSize={1.05}
+          stretch={1}
+          turbulence={0.9}
+          glow={0.6}
+          edgeSoftness={2}
+          bloom={0.3}
+          grain={0.04}
+          chromaticAberration={0.003}
+          transitionDuration={1}
+          interactionRadius={1.5}
+          interactionStrength={0.5}
+          rippleIntensity={0.8}
+          holdToGather={true}
+        />
+      </div>
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+      {/* 2. Architectural Vignette & Grid Gradient Overlay */}
+      <div className="absolute inset-0 bg-radial-vignette pointer-events-none z-[1]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0d0e]/60 to-[#0d0d0e] pointer-events-none z-[1]" />
+
+      {/* 3. Hero Foreground Content */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
         <div className="flex items-center gap-2 font-mono text-[11px] text-white/40 tracking-wider uppercase mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
           <span>FIG. 000 // AUTONOMOUS MULTIMODAL DEBUGGING AGENT</span>
@@ -55,17 +85,19 @@ export function InteractiveHero({ onExploreClick }) {
               From visual error to verified unified diff.
             </h1>
             <p className="text-sm sm:text-base text-white/50 leading-relaxed max-w-xl font-sans">
-              PatchBridge correlates issue screenshots with actual repository code using Google's <span className="text-white/80 font-mono">Gemma 4</span> and the <span className="text-white/80 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
+              PatchBridge correlates issue screenshots with actual repository code using Google's{' '}
+              <span className="text-white/80 font-mono">Gemma 4 (gemma-4-31b-it)</span> and the{' '}
+              <span className="text-white/80 font-mono">Model Context Protocol</span>. Zero hallucinated line numbers.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3 font-mono text-xs">
               <button
                 onClick={onExploreClick}
-                className="px-5 py-2.5 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform"
+                className="px-5 py-2.5 bg-white text-black hover:bg-white/90 active:scale-[0.98] font-medium rounded transition-transform cursor-pointer shadow-sm"
               >
-                START INVESTIGATION ›
+                OPEN WORKSPACE STUDIO ›
               </button>
-              <div className="px-3 py-2 border border-white/10 rounded text-white/50 text-[11px]">
+              <div className="px-3 py-2 border border-white/10 rounded text-white/50 text-[11px] bg-[#0d0d0e]/50 backdrop-blur-sm">
                 RESPONSE TIME: &lt; 20S
               </div>
             </div>
@@ -73,7 +105,7 @@ export function InteractiveHero({ onExploreClick }) {
 
           {/* Right: Animated Inspector / Radar Widget */}
           <div className="lg:col-span-5">
-            <div className="bg-[#121215] border border-white/[0.08] rounded-lg p-4 font-mono text-xs shadow-2xl relative overflow-hidden">
+            <div className="bg-[#121215]/90 backdrop-blur-md border border-white/[0.08] rounded-lg p-4 font-mono text-xs shadow-2xl relative overflow-hidden">
               {/* Terminal Title Bar */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06] text-[10px] text-white/40">
                 <div className="flex items-center gap-1.5">

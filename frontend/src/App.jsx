@@ -38,7 +38,6 @@ export function App() {
   }, []);
 
   const handleLogin = () => {
-    // Instant developer authentication
     const developerUser = {
       username: 'octocat',
       name: 'GitHub Developer',
@@ -67,9 +66,13 @@ export function App() {
   };
 
   const handleOpenWorkspace = () => {
-    setCurrentSessionId(null);
-    setActiveView('workspace');
-    window.history.pushState({}, '', '/');
+    if (!user) {
+      handleLogin();
+    } else {
+      setCurrentSessionId(null);
+      setActiveView('workspace');
+      window.history.pushState({}, '', '/');
+    }
   };
 
   return (
@@ -92,7 +95,7 @@ export function App() {
             onSelectSession={handleStartSession}
           />
         ) : (
-          <HomePage onStartSession={handleStartSession} />
+          <HomePage onOpenWorkspace={handleOpenWorkspace} />
         )}
       </main>
 
