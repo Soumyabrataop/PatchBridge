@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import dotenv from 'dotenv';
 import sessionRoutes from './routes/sessionRoutes.js';
 import streamRoutes from './routes/streamRoutes.js';
+import webhookRoutes from './github/webhookHandler.js';
 
 // Load root .env or fallback to local directory
 const rootEnv = path.resolve('..', '.env');
@@ -31,6 +32,7 @@ app.use('/demo-assets', express.static(path.resolve('..', 'examples', 'demo-bug-
 // API Routes
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/sessions', streamRoutes);
+app.use('/api/github', webhookRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
