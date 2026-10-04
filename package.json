@@ -1,0 +1,24 @@
+{
+  "name": "patchbridge",
+  "version": "1.0.0",
+  "description": "Multimodal open-source debugging agent powered by Gemma 4",
+  "scripts": {
+    "start:backend": "npm --prefix backend start",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "test:triage": "npm --prefix backend run test:triage",
+    "test:webhook": "npm --prefix backend run test:webhook",
+    "test:demo": "npm --prefix examples/demo-bug-repo test"
+  },
+  "keywords": [
+    "gemma-4",
+    "debugging",
+    "multimodal",
+    "mcp",
+    "agent",
+    "hackathon"
+  ],
+  "author": "PatchBridge Team",
+  "license": "Apache-2.0"
+}
