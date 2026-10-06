@@ -233,6 +233,77 @@ When installed on a repository:
 
 ---
 
-## 9. License
+## 9. Kiro University Challenge — Lessons 1–7
+
+PatchBridge was extended as part of the **Kiro University Challenge** to demonstrate all seven lessons using the project's own domain (multimodal bug triage, MCP tools, property-based testing). Every deliverable reuses existing PatchBridge architecture — nothing was rewritten.
+
+### Lesson 1 — Specs
+**Deliverable:** `.kiro/specs/property-based-tests/`
+
+A full requirements → design → tasks spec for the property-based validation test suite. The spec documents the known `validateEmail(undefined)` crash as a formal requirement, designs six correctness properties using `fast-check`, and produces a 7-task implementation plan with a dependency graph.
+
+### Lesson 2 — Steering
+**Deliverable:** `.kiro/steering/`
+
+Three steering files distilled from `AGENTS.md` and `GOAL.md`:
+- `project-conventions.md` (`always`) — evidence-first rule, shared agent core, MCP constraints, patch language, two-phase bot protocol
+- `stack-reference.md` (`always`) — runtime versions, directory layout, env vars, all run/test commands
+- `validation-rules.md` (`fileMatch: validation.js, *.test.js`) — exact null-guard fix pattern, expected test results, anti-patterns
+
+### Lesson 3 — Hooks
+**Deliverable:** `.kiro/hooks/`
+
+Two `PostFileSave` quality-gate hooks:
+- `validation-test-gate.json` — runs `node --test` on save of any `validation.js`; turns red when the null-guard is missing, green when it's added
+- `runner-smoke-test.json` — runs `node backend/test-run.js` on save of `runner.js`; verifies the agent still produces a valid triage report
+
+### Lesson 4 — Property-Based Testing
+**Deliverable:** `examples/demo-bug-repo/tests/validation.property.test.js`
+
+Six `fast-check` properties that formally prove invariants across the full input space:
+
+| Property | Baseline |
+|---|---|
+| `validateEmail` does not throw for any non-string input | RED (exposes the bug) |
+| `validateEmail` returns `{valid:false}` for non-string input | RED (confirms fix is complete) |
+| `validateEmail` accepts any valid email string | GREEN |
+| `validatePassword` rejects non-empty strings shorter than 8 chars | GREEN |
+| `validateLoginForm` is consistent with its component validators | GREEN |
+| `ValidationResult` is JSON round-trip safe | GREEN |
+
+Run:
+```bash
+npm run test:property
+```
+
+### Lesson 5 — Powers
+**Deliverable:** `.kiro/mcp.json` + `.kiro/steering/mcp-power-context.md`
+
+Two MCP server definitions so the Kiro IDE can call the same repository tools PatchBridge's backend uses at runtime:
+- `patchbridge-repo-tools` — PatchBridge's own MCP server (`backend/src/mcp-server.js`)
+- `patchbridge-filesystem` — `@modelcontextprotocol/server-filesystem` scoped to the demo repo, backend src, and skills
+- `patchbridge-github` — `@modelcontextprotocol/server-github` authenticated via `GITHUB_TOKEN`
+
+### Lesson 6 — MCP
+**Deliverable:** `backend/src/mcp-server.js`
+
+A standards-compliant stdio MCP server built with `@modelcontextprotocol/server` v2 + Zod. Exposes `list_files`, `search_repo`, and `read_file` — the same three tools the backend agent calls inline — as a proper MCP endpoint any client can connect to.
+
+```bash
+# Run the standalone MCP server
+npm run mcp-server
+
+# Inspect with the MCP Inspector
+npx @modelcontextprotocol/inspector node backend/src/mcp-server.js
+```
+
+### Lesson 7 — Custom Agent
+**Deliverable:** `.kiro/agents/patch-triage.md`
+
+A custom `@patch-triage` Kiro agent that wraps the `skills/patch-triage/SKILL.md` workflow. Any developer can invoke it in Kiro chat to run an evidence-first bug investigation against their own code without starting the full PatchBridge server. The agent uses the `patchbridge-repo-tools` MCP server from Lesson 6 for its tool access.
+
+---
+
+## 10. License
 
 This project is licensed under the **Apache-2.0** License. See [LICENSE](LICENSE) for details.

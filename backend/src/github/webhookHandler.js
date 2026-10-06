@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { sessionStore } from '../store/sessionStore.js';
 import { runTriageSession } from '../agent/runner.js';
 import { tokenRegistry } from '../store/tokenRegistry.js';
+import { getInstallationToken } from './appAuth.js';
 import {
   extractImageUrls,
   downloadImage,
@@ -55,7 +56,7 @@ async function triggerTriageWorkflow({
 }) {
   const sessionId = `pb-gh-${Date.now().toString(36)}-${uuidv4().substring(0, 6)}`;
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const githubToken = tokenRegistry.getTokenForRepo(repoFullName) || process.env.GITHUB_TOKEN;
+  const githubToken = await getInstallationToken() || tokenRegistry.getTokenForRepo(repoFullName);
 
   console.log(`[GitHub Webhook] Triggered /patchbridge on ${repoFullName}#${issueNumber} (Session: ${sessionId}, HasToken: ${Boolean(githubToken)}, Simulation: ${isSimulation})`);
 

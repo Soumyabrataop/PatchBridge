@@ -23,6 +23,9 @@ dist/
 build/
 .cache/
 
+# GitHub App private key (never commit)
+*.pem
+
 # OS files
 .DS_Store
 Thumbs.db

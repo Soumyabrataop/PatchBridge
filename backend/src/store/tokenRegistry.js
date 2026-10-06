@@ -52,16 +52,12 @@ class TokenRegistry {
   }
 
   getTokenForRepo(repoFullName) {
-    if (!repoFullName) return process.env.GITHUB_TOKEN || null;
-    const parts = repoFullName.split('/');
-    if (parts.length === 2) {
-      const owner = parts[0].toLowerCase();
-      const userToken = this.tokens.get(owner);
-      if (userToken) return userToken;
-    }
-    // Return any known logged-in user token if available, or fallback to GITHUB_TOKEN
-    const anyToken = this.tokens.values().next().value;
-    return anyToken || process.env.GITHUB_TOKEN || null;
+    // Bot/webhook actions (issue comments, PR creation) must ONLY use the
+    // dedicated GITHUB_TOKEN env var — never a logged-in user's OAuth token.
+    // User OAuth tokens are stored only for web UI session features (auth
+    // status, workspace dashboard) and must not be used to post bot comments,
+    // or every comment will appear to come from that user's personal account.
+    return process.env.GITHUB_TOKEN || null;
   }
 
   hasAnyToken() {
