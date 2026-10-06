@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "patchbridge-filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "c:\\Users\\hp\\Downloads\\PatchBridge\\examples\\demo-bug-repo",
+        "c:\\Users\\hp\\Downloads\\PatchBridge\\backend\\src",
+        "c:\\Users\\hp\\Downloads\\PatchBridge\\skills"
+      ],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "read_file",
+        "read_multiple_files",
+        "list_directory",
+        "directory_tree",
+        "search_files",
+        "get_file_info"
+      ]
+    },
+    "patchbridge-github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "get_file_contents",
+        "search_code",
+        "search_repositories",
+        "list_issues",
+        "get_issue",
+        "search_issues",
+        "list_commits",
+        "get_commit"
+      ]
+    }
+  }
+}
