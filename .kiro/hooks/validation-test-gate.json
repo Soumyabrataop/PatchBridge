@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Validation Test Gate",
+      "trigger": "PostFileSave",
+      "description": "Runs the demo-bug-repo node:test suite whenever validation.js is saved. Prints pass/fail inline so the null-guard bug is caught immediately on edit.",
+      "matcher": ".*validation\\.js$",
+      "action": {
+        "type": "command",
+        "command": "cd \"c:\\Users\\hp\\Downloads\\PatchBridge\\examples\\demo-bug-repo\" && node --test tests/validation.test.js 2>&1 && echo \"GATE: validation tests passed\" || echo \"GATE FAILED: fix validation errors before continuing\"",
+        "timeout": 30
+      }
+    }
+  ]
+}

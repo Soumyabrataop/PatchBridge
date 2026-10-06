@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Agent Runner Smoke Test",
+      "trigger": "PostFileSave",
+      "description": "Runs the headless agent triage smoke test whenever runner.js is saved. Verifies the agent still produces a valid structured report with root cause, evidence, patch, and test plan.",
+      "matcher": ".*runner\\.js$",
+      "action": {
+        "type": "command",
+        "command": "cd \"c:\\Users\\hp\\Downloads\\PatchBridge\\backend\" && node test-run.js 2>&1 && echo \"GATE: agent triage report verified\" || echo \"GATE FAILED: runner.js change broke the triage output schema\"",
+        "timeout": 60
+      }
+    }
+  ]
+}
