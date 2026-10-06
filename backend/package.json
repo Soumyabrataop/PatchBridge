@@ -7,15 +7,18 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
+    "mcp-server": "node src/mcp-server.js",
     "test:triage": "node test-run.js",
     "test:webhook": "node test-webhook.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
+    "@modelcontextprotocol/server": "^2.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.6.5"
   }
 }

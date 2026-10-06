@@ -2,6 +2,18 @@ import { listFiles, searchRepo, readFile } from './localTools.js';
 
 /**
  * Model Context Protocol (MCP) tool schema definitions for Gemma 4.
+ *
+ * Standalone MCP server entry point (Lesson 6 — Kiro University):
+ *   backend/src/mcp-server.js
+ *
+ * The server exposes the same three tools below as a compliant stdio MCP
+ * server using @modelcontextprotocol/server + Zod, delegating all
+ * implementations to localTools.js. Both the IDE (Kiro) and this inline
+ * dispatch path use identical tool names and parameter shapes.
+ *
+ * Run the standalone server:
+ *   npm run mcp-server                          # uses demo-bug-repo
+ *   npm run mcp-server -- /path/to/other/repo   # custom repo root
  */
 export const MCP_TOOL_DEFINITIONS = [
   {

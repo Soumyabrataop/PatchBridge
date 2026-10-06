@@ -10,7 +10,8 @@
     "test:triage": "npm --prefix backend run test:triage",
     "test:webhook": "npm --prefix backend run test:webhook",
     "test:demo": "npm --prefix examples/demo-bug-repo test",
-    "test:property": "npm --prefix examples/demo-bug-repo run test:property"
+    "test:property": "npm --prefix examples/demo-bug-repo run test:property",
+    "mcp-server": "npm --prefix backend run mcp-server"
   },
   "keywords": [
     "gemma-4",

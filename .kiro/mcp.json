@@ -1,5 +1,19 @@
 {
   "mcpServers": {
+    "patchbridge-repo-tools": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\hp\\Downloads\\PatchBridge\\backend\\src\\mcp-server.js",
+        "c:\\Users\\hp\\Downloads\\PatchBridge\\examples\\demo-bug-repo"
+      ],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "list_files",
+        "search_repo",
+        "read_file"
+      ]
+    },
     "patchbridge-filesystem": {
       "command": "npx",
       "args": [
