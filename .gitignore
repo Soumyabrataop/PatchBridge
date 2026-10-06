@@ -26,6 +26,9 @@ build/
 # GitHub App private key (never commit)
 *.pem
 
+# Runtime ephemeral data
+backend/tmp/
+
 # OS files
 .DS_Store
 Thumbs.db
