@@ -5,9 +5,14 @@
   "main": "src/LoginForm.jsx",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/validation.test.js"
+    "test": "node --test tests/validation.test.js tests/validation.property.test.js",
+    "test:unit": "node --test tests/validation.test.js",
+    "test:property": "node --test tests/validation.property.test.js"
   },
   "keywords": ["react", "auth", "validation", "demo"],
   "author": "PatchBridge Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "fast-check": "^3.23.2"
+  }
 }

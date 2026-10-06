@@ -9,7 +9,8 @@
     "build:frontend": "npm --prefix frontend run build",
     "test:triage": "npm --prefix backend run test:triage",
     "test:webhook": "npm --prefix backend run test:webhook",
-    "test:demo": "npm --prefix examples/demo-bug-repo test"
+    "test:demo": "npm --prefix examples/demo-bug-repo test",
+    "test:property": "npm --prefix examples/demo-bug-repo run test:property"
   },
   "keywords": [
     "gemma-4",
